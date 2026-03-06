@@ -6,28 +6,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
-## [Unreleased]
-
-- (Add new changes here before cutting a release.)
-
----
-
-## [0.1.0] — 2025-03-07
+## [0.2.0] — 2026-03-06
 
 ### Added
+- **Streamlit Frontend**: A modern, interactive dashboard for managing assessments and knowledge base.
+  - **Dashboard**: Visual metrics and activity charts.
+  - **Assessment Workbench**: Drag-and-drop file upload, real-time progress tracking, and structured report viewing (Risks, Compliance, Remediations).
+  - **Knowledge Base Manager**: UI for uploading policy documents and testing RAG retrieval.
+- **Developer Experience**:
+  - Added `pyproject.toml` for unified tool configuration.
+  - Added `Makefile` for common development tasks (`make install`, `make test`, `make lint`).
+  - Added `pre-commit` hooks for code quality assurance.
+  - Integrated **Ruff** for fast linting and formatting.
+- **Documentation**:
+  - Updated README with frontend screenshots and demo GIF.
+  - Added `DEMO-RECORD.md` guide.
 
-- **Assessment API**: Submit documents (PDF, Word, Excel, PPT, text) and receive structured assessment reports (risk items, compliance gaps, remediations).
-- **Knowledge base (RAG)**: Upload policy/compliance documents; chunking and embedding with Chroma; query endpoint for retrieval.
-- **Multi-format parser**: PyMuPDF (PDF), python-docx (Word), openpyxl (Excel), python-pptx (PPT), plain text/Markdown.
-- **LLM abstraction**: Support for OpenAI and Ollama (local); configurable via `LLM_PROVIDER` and env vars.
-- **REST API**: FastAPI app with `/api/v1/assessments`, `/api/v1/kb/documents`, `/api/v1/kb/query`, `/health`; Swagger at `/docs`.
-- **Docker**: `Dockerfile` and `docker-compose.yml` for one-command run with optional Ollama service.
-- **Documentation**: SPEC, ARCHITECTURE.md, design docs (01–05), SECURITY.md, README with Quick Start.
+### Changed
+- **CI/CD**: Updated GitHub Actions workflow to include linting steps.
+- **Project Structure**: Migrated `pytest.ini` to `pyproject.toml`.
 
-### Notes
-
-- Task store is in-memory (MVP); replace with DB/Redis for production.
-- AAD and ServiceNow integrations are planned; see SPEC and docs/04-integration-guide.md.
-
-[Unreleased]: https://github.com/arthurpanhku/Arthor-Agent/compare/v0.1.0...HEAD
+[0.2.0]: https://github.com/arthurpanhku/Arthor-Agent/releases/tag/v0.2.0
 [0.1.0]: https://github.com/arthurpanhku/Arthor-Agent/releases/tag/v0.1.0
