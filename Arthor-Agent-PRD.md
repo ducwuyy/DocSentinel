@@ -1,14 +1,20 @@
 # Arthor Agent — 产品需求文档（PRD）  
 # Arthor Agent — Product Requirements Document (PRD)
 
-**文档版本 / Document Version**：v1.3  
+**文档版本 / Document Version**：v1.4  
 **创建日期 / Date**：2025-03-06  
 **作者 / Author**：PAN CHAO  
 **联系身份 / Contact**：u3638376@connect.hku.hk  
 
-**v1.3 修订说明 / Revision (v1.3)**：新增非业务性「安全需求与安全控制」（§7.2）：身份与访问控制、数据安全、应用安全、运维与审计、供应链与开源；每类下设具体控制项与设计要点，并映射到设计/开发/部署阶段。  
-*v1.3: Added non-functional Security Requirements and Controls (§7.2): identity & access, data security, application security, operations & audit, supply chain; concrete control items and design notes; mapping to design/dev/ops.*
+> **系统架构文档 | System Architecture**  
+> 完整的系统架构说明（含图示、数据流、部署视图）已单独成文，采用开源项目常用格式：  
+> **[ARCHITECTURE.md](./ARCHITECTURE.md)**  
+> 本文 PRD 第五节仅保留架构摘要与索引；详细组件设计、Mermaid 图及安全架构请见 ARCHITECTURE.md。
 
+**v1.4**：PRD 与系统架构文档分离；架构细节迁移至 ARCHITECTURE.md，PRD 保留产品目标、需求与安全控制。  
+*v1.4: PRD and System Architecture doc split; architecture details moved to ARCHITECTURE.md.*
+
+**v1.3**：新增非业务性「安全需求与安全控制」（§7.2）。  
 **v1.2**：知识库多格式上传与开源解析、Parser 复用。  
 **v1.1**：企业集成（ServiceNow）、IAM（AAD/SSO、RBAC）、部署与连通性。
 
@@ -178,51 +184,34 @@ Build a **dedicated AI Agent for security teams**, with the primary focus on **a
 
 ## 五、系统架构 | Section 5 — System Architecture
 
-### 5.1 架构总览 | Architecture Overview
+> **完整架构文档（含图示与部署视图）**  
+> **Full system architecture** (with diagrams, data flow, deployment, and security architecture) is maintained in:  
+> **[ARCHITECTURE.md](./ARCHITECTURE.md)**
+
+### 5.1 架构摘要 | Architecture Summary
 
 #### 中文
 
-整体架构参考主流开源 AI Agent 设计（如多引擎支持、RAG、技能与记忆分层），并针对安全评估场景做裁剪与增强。
+系统采用分层设计：**接入层**（REST API / Web / CLI）→ **核心**（任务编排、记忆体、Skill 层、知识库 RAG、文件解析）→ **LLM 抽象层** → **商用/本地 LLM**。可选对接 **AAD**（身份/SSO）与 **ServiceNow**（项目元数据）。详细组件说明、Mermaid 架构图、数据流与时序图、集成视图、安全架构及部署视图见 **[ARCHITECTURE.md](./ARCHITECTURE.md)**。
 
 #### English
 
-The overall architecture draws on mainstream open-source AI Agent patterns (e.g. multi-engine support, RAG, layered Skills and memory) and is tailored for the security assessment use case.
+The system uses a layered design: **Access** (REST API / Web / CLI) → **Core** (Orchestrator, Memory, Skills, Knowledge Base RAG, Parser) → **LLM abstraction** → **Cloud/local LLMs**. Optional integrations: **AAD** (identity/SSO) and **ServiceNow** (project metadata). For component details, Mermaid diagrams, data flow, integration view, security architecture, and deployment view, see **[ARCHITECTURE.md](./ARCHITECTURE.md)**.
 
-```
-                    ┌─────────────────────────────────────────────────────────┐
-                    │           用户 / 安全人员 | User / Security Staff         │
-                    └───────────────────────────┬─────────────────────────────┘
-                                                │
-                    ┌───────────────────────────▼─────────────────────────────┐
-                    │                接入层 | Access Layer (API / Web / CLI)   │
-                    └───────────────────────────┬─────────────────────────────┘
-                                                │
-    ┌───────────────────────────────────────────▼───────────────────────────────────────────┐
-    │                         Arthor Agent 核心 | Core                                        │
-    │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌────────────┐  │
-    │  │  任务编排    │  │  记忆体     │  │  Skill 层   │  │  知识库     │  │  文件解析   │  │
-    │  │  (Orchestr.) │  │  (Memory)   │  │  (Skills)   │  │  (RAG/KB)   │  │  (Parser)   │  │
-    │  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘  └─────┬───────┘  │
-    │         │                │                │                │                │          │
-    │         └────────────────┴────────────────┴────────────────┴────────────────┘          │
-    │                                          │                                               │
-    │                              ┌───────────▼───────────┐                                  │
-    │                              │  LLM 抽象层 | LLM Abstraction                            │
-    │                              └───────────┬───────────┘                                  │
-    └──────────────────────────────────────────┼──────────────────────────────────────────────┘
-                                               │
-        ┌─────────────────────────────────────┼─────────────────────────────────────┐
-        │  商用/云端 LLM | Commercial/Cloud     │    本地/私有化 LLM | Local/On-prem   │
-        │  ChatGPT / Claude / Qwen / Gemini    │    Ollama / vLLM / ...               │
-        └─────────────────────────────────────────────────────────────────────────────┘
-```
+### 5.2 核心组件索引 | Component Index
 
-**中文**：接入层与核心之外，系统需对接 **AAD**（身份/登录与 API Token 校验）与 **项目管理平台**（如 ServiceNow，读取项目元数据；可选回写评估结果）。  
-**English**: Beyond the access and core layers, the system integrates with **AAD** (identity/login and API token validation) and **project management platforms** (e.g. ServiceNow for project metadata; optional write-back of assessment results).
+| 组件 | 职责概要 | 详见 |
+|------|----------|------|
+| **Orchestrator** | 接收任务，协调 Parser / KB / Skill / LLM，输出报告 | ARCHITECTURE.md § Component Design |
+| **Memory** | 工作记忆、情景记忆（可选）、语义记忆（可选） | ARCHITECTURE.md § Component Design |
+| **Skills** | 问卷比对、策略符合性、证据检查、风险分级等 | ARCHITECTURE.md § Component Design |
+| **Knowledge Base** | 多格式上传→解析→切块→向量化→RAG 检索 | ARCHITECTURE.md § Component Design |
+| **Parser** | 多格式→统一 Markdown/JSON，服务评估与 KB 入库 | ARCHITECTURE.md § Component Design |
+| **LLM abstraction** | 统一接口，支持 OpenAI / Ollama / Claude / 千问等 | ARCHITECTURE.md § Component Design |
+| **Integrations** | AAD（SSO/Token）、ServiceNow（项目元数据/回写） | ARCHITECTURE.md § Integration Points |
 
----
-
-### 5.2 核心组件说明 | Core Components
+<details>
+<summary>原 5.2.1–5.2.8 详细说明（已迁移至 ARCHITECTURE.md，此处保留折叠供参考）</summary>
 
 #### 5.2.1 Agent 智能体（任务编排）| Agent (Orchestration)
 
@@ -413,6 +402,8 @@ The overall architecture draws on mainstream open-source AI Agent patterns (e.g.
   - **System administrator**: User and role management, integration config (AAD, ServiceNow, LLM), system parameters, and audit.
 - **API authentication**: In addition to browser SSO, API calls support Bearer Token (e.g. JWT from AAD), API Key, or client credentials (M2M), with validation of token validity and scope.
 - **Data isolation**: Restrict access to assessment tasks and reports by role and project ownership to prevent cross-department/cross-project access; when integrated with project–person mapping from the project management platform, use it for fine-grained authorisation.
+
+</details>
 
 ---
 

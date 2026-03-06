@@ -88,7 +88,7 @@ flowchart TB
 4. **LLM** (OpenAI, Ollama, etc.) produces structured findings.
 5. The result is returned as an **assessment report** (risks, compliance gaps, remediations).
 
-Detailed architecture and component descriptions are in the [PRD §5](./Arthor-Agent-PRD.md) and [docs/01-architecture-and-tech-stack.md](./docs/01-architecture-and-tech-stack.md).
+Detailed architecture and component descriptions are in [ARCHITECTURE.md](./ARCHITECTURE.md) and [docs/01-architecture-and-tech-stack.md](./docs/01-architecture-and-tech-stack.md).
 
 ---
 
@@ -211,7 +211,8 @@ See [.env.example](./.env.example) and [docs/05-deployment-runbook.md](./docs/05
 
 ## Documentation and PRD
 
-- **[Arthor-Agent-PRD.md](./Arthor-Agent-PRD.md)** — Product requirements: problem statement, solution, architecture, features, security controls, and open questions for development.
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** — System architecture: high-level diagram, Mermaid views (logical, component, sequence, integration, deployment), component design, data flow, security architecture.
+- **[Arthor-Agent-PRD.md](./Arthor-Agent-PRD.md)** — Product requirements: problem statement, solution, architecture summary, features, security controls, and open questions for development.
 - **Design docs** in [docs/](./docs/): architecture and tech stack, API spec (OpenAPI), assessment report and Skill contract, integration guide (AAD, ServiceNow), deployment runbook.
 
 ---
