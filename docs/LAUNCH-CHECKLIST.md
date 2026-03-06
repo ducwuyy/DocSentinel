@@ -1,56 +1,55 @@
-# Q1 community launch checklist
+# Q1 Community Launch Checklist | 社区发布清单
 
-Use this list when you’re ready to announce Arthor Agent (e.g. after v0.1.0 release and a first blog post).
-
----
-
-## Before you launch
-
-- [ ] **Release**: Tag `v0.1.0`, create GitHub Release with short notes (copy from [CHANGELOG.md](../CHANGELOG.md)).
-- [ ] **Docker**: Run `docker compose up` and the assessment + KB curl examples; fix any failures.
-- [ ] **Demo**: Record a 30–60s GIF or video (upload PDF → get report), add to README.
-- [ ] **Blog**: Publish at least one post (see [blog/README.md](blog/README.md)); link repo in the post.
+Use this list when you’re ready to announce Arthor Agent (e.g. after v0.1.0 release).
 
 ---
 
-## Where to post (pick 1–2 for Q1)
+## 1. Before Launch | 发布前准备
+
+-   [ ] **Release**: Tag `v0.1.0`, create GitHub Release with notes from [CHANGELOG.md](../CHANGELOG.md).
+-   [ ] **Docker**: Verify `docker compose up` works smoothly; test assessment & KB curl commands.
+-   [ ] **Demo**: Record a 30–60s GIF (upload PDF → get report), add to `README.md`.
+-   [ ] **Blog**: Publish at least one post (see [blog/README.md](blog/README.md)); link back to repo.
+
+---
+
+## 2. Where to Post | 发布渠道
 
 ### Hacker News
 
-- **What**: [Show HN: Arthor Agent – open-source AI for security questionnaire assessment](https://news.ycombinator.com/submit)
-- **When**: Tuesday–Thursday, morning US Eastern often works well.
-- **Text**: Short pitch (2–3 sentences): what it does, why open-source + local LLM, one-line quick start. Link to repo; no paywall.
-- **Tip**: Be in the thread to answer questions in the first 1–2 hours.
+-   **Title**: `Show HN: Arthor Agent – open-source AI for security questionnaire assessment`
+-   **Timing**: Tuesday–Thursday, morning US Eastern.
+-   **Content**: Short pitch (What/Why/How), link to repo, no paywall.
+-   **Action**: Monitor thread for 1–2 hours.
 
 ### Reddit
 
-- **Subreddits**: r/cybersecurity, r/devsecops, r/selfhosted, r/LocalLLaMA (if you stress Ollama).
-- **Rules**: Read each sub’s rules; no pure self-promotion. Lead with “We built an open-source tool for X; would love feedback” and offer a clear way to try it (Docker).
-- **Format**: Title + 2–3 paragraphs (problem, what it does, how to try) + repo link.
+-   **Subreddits**: `r/cybersecurity`, `r/devsecops`, `r/selfhosted`, `r/LocalLLaMA`.
+-   **Content**: "We built an open-source tool for X; would love feedback".
+-   **Format**: Title + Problem/Solution + Repo Link.
 
 ### LinkedIn / X (Twitter)
 
-- **Post**: 1–2 short paragraphs + repo link + “Docker one-command run” or “runs fully local with Ollama”.
-- **Hashtags**: #DevSecOps #OpenSource #Security #AI #Ollama (don’t overdo).
-- **Tip**: Ask a few colleagues or contacts to share if they find it useful.
+-   **Content**: Short paragraph + Repo link + "Docker one-command run".
+-   **Tags**: `#DevSecOps` `#OpenSource` `#Security` `#AI` `#Ollama`.
 
 ### Dev.to / Medium
 
-- **Action**: Publish the blog post(s) from [blog/README.md](blog/README.md); add “Originally published on …” and link to repo.
-- **Tags**: security, open-source, llm, rag, fastapi, ollama, compliance.
+-   **Action**: Cross-post the blog; add canonical link to repo.
+-   **Tags**: `security`, `open-source`, `llm`, `rag`.
 
 ---
 
-## After launch
+## 3. After Launch | 发布后跟进
 
-- [ ] **Respond**: Check HN/Reddit/Issues for 24–48h; reply to questions and thank feedback.
-- [ ] **Iterate**: Note common questions and add a **FAQ** section to README or docs if needed.
-- [ ] **Thank**: If someone stars or shares, a short thank-you (e.g. in thread or reply) helps.
+-   [ ] **Respond**: Reply to comments/issues within 24–48h.
+-   [ ] **Iterate**: Add FAQ to README based on feedback.
+-   [ ] **Thank**: Acknowledge contributors and feedback.
 
 ---
 
-## Optional (later in Q1 or Q2)
+## 4. Optional (Q1/Q2) | 后续计划
 
-- Submit to **Awesome** lists: e.g. “Awesome Security”, “Awesome Open Source” (follow their contribution rules).
-- Write a **second** blog post (e.g. “Running security assessments locally with Ollama”).
-- **Conference / meetup**: Propose a 10–15 min talk or demo for a local DevSecOps or security meetup.
+-   Submit to **Awesome Lists** (e.g. Awesome Security).
+-   Write a **second blog post** (e.g. "Running locally with Ollama").
+-   **Talk/Demo** at local meetups.
