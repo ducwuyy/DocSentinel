@@ -168,6 +168,12 @@ pip install streamlit plotly pandas
 streamlit run frontend/Home.py
 ```
 
+### 📹 Demo Walkthrough | 演示视频
+
+![Demo Walkthrough](docs/images/demo-assessment.gif)
+
+### Screenshots | 界面截图
+
 ![Streamlit Dashboard](docs/images/streamlit-dashboard.png)
 *Dashboard view*
 
@@ -176,8 +182,6 @@ streamlit run frontend/Home.py
 
 ![Knowledge Base](docs/images/streamlit-knowledge-base.png)
 *Knowledge Base Management view*
-
-*录制 30 秒 GIF*：按上述操作录屏，保存为 `docs/images/demo-assessment.gif`。详见 [docs/DEMO-RECORD.md](docs/DEMO-RECORD.md)。
 
 ### Option A: Docker（推荐）| Docker (recommended)
 
