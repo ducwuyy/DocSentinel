@@ -1,0 +1,34 @@
+# Arthor Agent — one-command run: API + optional Ollama (local LLM)
+# Usage:
+#   docker compose up -d
+#   Open http://localhost:8000/docs and http://localhost:8000/health
+#   For local LLM: start ollama service and run `ollama pull llama2` in the ollama container or on host.
+
+services:
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - ENV=development
+      - LLM_PROVIDER=ollama
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - OLLAMA_MODEL=llama2
+      - CHROMA_PERSIST_DIR=/data/chroma
+      - UPLOAD_MAX_FILE_SIZE_MB=50
+      - UPLOAD_MAX_FILES=10
+    volumes:
+      - arthor-data:/data
+    depends_on:
+      - ollama
+
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+
+volumes:
+  arthor-data:
+  ollama-data:

@@ -1,0 +1,29 @@
+# Git and env
+.git
+.gitignore
+.env
+.env.*
+!.env.example
+
+# Python
+.venv
+venv
+__pycache__
+*.pyc
+.pytest_cache
+.coverage
+htmlcov
+
+# Data (mount at runtime)
+data/
+
+# Docs (only schemas needed in image)
+docs/*.md
+docs/*.yaml
+docs/images/
+
+# IDE and OS
+.idea
+.vscode
+.DS_Store
+*.log

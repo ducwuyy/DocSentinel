@@ -8,6 +8,7 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/arthurpanhku/Arthor-Agent/releases"><img src="https://img.shields.io/github/v/release/arthurpanhku/Arthor-Agent?include_prereleases" alt="Latest release"/></a>
   <a href="https://github.com/arthurpanhku/Arthor-Agent/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"/></a>
   <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/python-3.10+-blue.svg" alt="Python 3.10+"/></a>
   <a href="https://github.com/arthurpanhku/Arthor-Agent"><img src="https://img.shields.io/badge/GitHub-arthurpanhku%2FArthor--Agent-24292e?logo=github" alt="GitHub repo"/></a>
@@ -109,33 +110,43 @@ Roadmap (e.g. AAD/SSO, ServiceNow integration, RBAC) is described in the [PRD](.
 
 ## Quick Start
 
-### Prerequisites
+<!-- TODO: Add a 30s demo GIF here: upload PDF → assessment report. Record with: browser or terminal + screen capture. -->
+<!-- Example: ![Demo](docs/images/demo-assessment.gif) -->
 
-- **Python 3.10+**
-- (Optional) **Ollama** for a local LLM: [install Ollama](https://ollama.ai), then e.g. `ollama pull llama2`
+### Option A: Docker (recommended, one command)
 
-### Install and run
+**Prerequisites**: [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/).
 
 ```bash
-# Clone the repository
 git clone https://github.com/arthurpanhku/Arthor-Agent.git
 cd Arthor-Agent
-
-# Create virtual environment and install dependencies
-python3 -m venv .venv
-source .venv/bin/activate   # On Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-
-# Configure environment (copy and edit)
-cp .env.example .env
-# Set LLM_PROVIDER=ollama (default) or openai, and API keys if using cloud LLM.
-
-# Run the API server
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+docker compose up -d
 ```
 
 - **API docs (Swagger)**: [http://localhost:8000/docs](http://localhost:8000/docs)  
 - **Health**: [http://localhost:8000/health](http://localhost:8000/health)
+
+The stack includes the API and Ollama. Pull a model so assessments use the local LLM:
+
+```bash
+docker compose exec ollama ollama pull llama2
+```
+
+### Option B: Python (local dev)
+
+**Prerequisites**: **Python 3.10+**. Optional: [Ollama](https://ollama.ai) for local LLM (`ollama pull llama2`).
+
+```bash
+git clone https://github.com/arthurpanhku/Arthor-Agent.git
+cd Arthor-Agent
+python3 -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+cp .env.example .env       # Edit if needed: LLM_PROVIDER=ollama or openai
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+- **API docs**: [http://localhost:8000/docs](http://localhost:8000/docs) · **Health**: [http://localhost:8000/health](http://localhost:8000/health)
 
 ### Example: submit an assessment
 
@@ -186,7 +197,10 @@ Arthor-Agent/
 │   ├── 04-integration-guide.md
 │   ├── 05-deployment-runbook.md
 │   └── schemas/
-├── SPEC.md   # Product requirements (full)
+├── Dockerfile            # Container image for API
+├── docker-compose.yml    # API + Ollama one-command run
+├── CHANGELOG.md          # Version history
+├── SPEC.md               # Product / system spec
 ├── LICENSE               # MIT
 ├── SECURITY.md           # Security policy and disclosure
 ├── requirements.txt
@@ -213,7 +227,8 @@ See [.env.example](./.env.example) and [docs/05-deployment-runbook.md](./docs/05
 
 - **[ARCHITECTURE.md](./ARCHITECTURE.md)** — System architecture: high-level diagram, Mermaid views (logical, component, sequence, integration, deployment), component design, data flow, security architecture.
 - **[SPEC.md](./SPEC.md)** — Product requirements: problem statement, solution, architecture summary, features, security controls, and open questions for development.
-- **Design docs** in [docs/](./docs/): architecture and tech stack, API spec (OpenAPI), assessment report and Skill contract, integration guide (AAD, ServiceNow), deployment runbook.
+- **[CHANGELOG.md](./CHANGELOG.md)** — Version history; [Releases](https://github.com/arthurpanhku/Arthor-Agent/releases) for binaries and release notes.
+- **Design docs** in [docs/](./docs/): architecture and tech stack, API spec (OpenAPI), assessment report and Skill contract, integration guide (AAD, ServiceNow), deployment runbook. For Q1 launch: [docs/LAUNCH-CHECKLIST.md](./docs/LAUNCH-CHECKLIST.md).
 
 ---
 
