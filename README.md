@@ -21,8 +21,6 @@
 
 ## What is Arthor Agent? | Arthor Agent 是什么？
 
-**中文**
-
 **Arthor Agent** 是面向安全团队的 AI 助手。它自动化审阅与安全相关的**文档、表格和报告**（如安全问卷、设计文档、合规证据），结合策略与知识库进行比对，并产出**结构化评估报告**，包含风险项、合规差距与整改建议。
 
 🚀 **Agent Ready**: 支持 **Model Context Protocol (MCP)**，可作为“技能”被 OpenClaw、Claude Desktop 等智能体直接调用。
@@ -33,8 +31,6 @@
 - **结构化输出**：JSON/Markdown 报告，含风险项、合规差距与可执行整改建议。
 
 适合需要在大量项目中扩展安全评估、而人力有限的企业。
-
-**English**
 
 **Arthor Agent** is an AI-powered assistant for security teams. It automates the review of security-related **documents, forms, and reports** (e.g. Security Questionnaires, design docs, compliance evidence), compares them against your policy and knowledge base, and produces **structured assessment reports** with risks, compliance gaps, and remediation suggestions.
 
@@ -51,27 +47,12 @@ Ideal for enterprises that need to scale security assessments across many projec
 
 ## Why Arthor Agent? | 为什么用 Arthor Agent？
 
-**中文**
-
-企业安全团队常见痛点与 Arthor Agent 的应对方式：
-
-| 痛点                                                              | Arthor Agent 的应对                                              |
-| :---------------------------------------------------------------- | :--------------------------------------------------------------- |
-| **评估依据分散**<br>策略、标准与先例散落各处。                    | 统一**知识库**承载策略与控制项，评估一致、可追溯。               |
-| **问卷流程繁重**<br>业务填表 → 安全评估 → 业务补证据 → 安全再审。 | **自动化初评**与差距分析，减少多轮往返。                         |
-| **上线前审阅压力**<br>安全需审阅并签批大量技术文档。              | **结构化报告**（风险、差距、整改）让审阅聚焦决策，而非逐行阅读。 |
-| **规模与一致性**<br>项目多、标准多，人工易不一致或延迟。          | **可配置场景**与统一流水线，保证一致与可审计。                   |
-
-**English**
-
-Enterprise security teams face:
-
-| Pain point                                                                                                                           | How Arthor Agent helps                                                                                       |
-| :----------------------------------------------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------- |
-| **Fragmented criteria**<br>Policies, standards, and precedents are scattered.                                                        | A single **knowledge base** holds policies and controls; assessments are consistent and traceable.           |
-| **Heavy questionnaire workflow**<br>Business fills forms → security evaluates → business provides evidence → security reviews again. | **Automated first-pass assessment** and gap analysis reduce manual rounds.                                   |
-| **Pre-release review pressure**<br>Security must review and sign off on many technical documents.                                    | **Structured reports** (risks, gaps, remediations) let reviewers focus on decisions, not reading every line. |
-| **Scale vs. consistency**<br>Many projects and standards lead to inconsistent or delayed assessments.                                | **Configurable scenarios** and a unified pipeline keep assessments consistent and auditable.                 |
+| 痛点 (Pain Point)                                                                                    | Arthor Agent 的应对 (Solution)                                                                               |
+| :--------------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------- |
+| **评估依据分散** / **Fragmented criteria**<br>策略、标准与先例散落各处。                             | 统一**知识库**承载策略与控制项，评估一致、可追溯。<br>Single **knowledge base** ensures consistent findings. |
+| **问卷流程繁重** / **Heavy questionnaire workflow**<br>业务填表 → 安全评估 → 业务补证据 → 安全再审。 | **自动化初评**与差距分析，减少多轮往返。<br>**Automated first-pass** reduces manual rounds.                  |
+| **上线前审阅压力** / **Pre-release review pressure**<br>安全需审阅并签批大量技术文档。               | **结构化报告**让审阅聚焦决策，而非逐行阅读。<br>**Structured reports** focus on decisions, not reading.      |
+| **规模与一致性** / **Scale vs. consistency**<br>项目多、标准多，人工易不一致或延迟。                 | **可配置场景**与统一流水线，保证一致与可审计。<br>**Unified pipeline** keeps assessments consistent.         |
 
 *完整问题陈述与产品目标见 [SPEC.md](./SPEC.md)（产品需求与规格）。*  
 *See the full problem statement and product goals in [SPEC.md](./SPEC.md).*
@@ -80,20 +61,16 @@ Enterprise security teams face:
 
 ## Architecture | 架构
 
-**中文**
-
 Arthor Agent 以**编排器**为核心，协调解析、知识库（RAG）、技能（如问卷与策略比对）与 LLM。可按环境选用云端或本地大模型，以及可选集成（如 AAD、ServiceNow）。
 
-**English**
-
-Arthor Agent is built around an **orchestrator** that coordinates parsing, the knowledge base (RAG), skills (e.g. questionnaire vs. policy check), and the LLM. You can use cloud or local LLMs and optional integrations (e.g. AAD, ServiceNow) as your environment requires.
+Arthor Agent is built around an **orchestrator** that coordinates parsing, the knowledge base (RAG), skills, and the LLM. You can use cloud or local LLMs and optional integrations (e.g. AAD, ServiceNow) as your environment requires.
 
 ```mermaid
 flowchart TB
-    subgraph User["👤 User / Security Staff | 用户 / 安全人员"]
+    subgraph User["👤 User / Security Staff | 用户"]
     end
     subgraph Access["Access Layer | 接入层"]
-        API["REST API (FastAPI)"]
+        API["REST API / MCP"]
     end
     subgraph Core["Arthor Agent Core | 核心"]
         Orch["Orchestrator | 编排"]
@@ -123,11 +100,11 @@ flowchart TB
 
 **数据流（简要）| Data flow (simplified):**
 
-1.  用户上传文档，可选选择场景或项目。 / User uploads documents and (optionally) selects a scenario or project.
-2.  **Parser 解析器**将文件（PDF、Word、Excel、PPT 等）转为统一文本/Markdown。 / **Parser** converts files into a unified text/Markdown format.
-3.  **编排器**从**知识库**（RAG）加载相关片段并调用**技能**（如问卷与策略比对）。 / **Orchestrator** loads relevant chunks from the **Knowledge Base** (RAG) and invokes **Skills**.
+1.  用户上传文档，可选选择场景或项目。 / User uploads documents and selects scenario.
+2.  **Parser 解析器**将文件（PDF、Word、Excel、PPT 等）转为统一文本/Markdown。 / **Parser** converts files to text/Markdown.
+3.  **编排器**从**知识库**（RAG）加载相关片段并调用**技能**。 / **Orchestrator** loads **KB** chunks (RAG) and invokes **Skills**.
 4.  **LLM**（OpenAI、Ollama 等）生成结构化结论。 / **LLM** produces structured findings.
-5.  返回**评估报告**（风险、合规差距、整改建议）。 / The result is returned as an **assessment report** (risks, compliance gaps, remediations).
+5.  返回**评估报告**（风险、合规差距、整改建议）。 / Returns **assessment report** (risks, gaps, remediations).
 
 *详细架构与组件说明见 [ARCHITECTURE.md](./ARCHITECTURE.md) 与 [docs/01-architecture-and-tech-stack.md](./docs/01-architecture-and-tech-stack.md)。*  
 *Detailed architecture: [ARCHITECTURE.md](./ARCHITECTURE.md) and [docs/01-architecture-and-tech-stack.md](./docs/01-architecture-and-tech-stack.md).*
@@ -136,33 +113,17 @@ flowchart TB
 
 ## Features | 功能概览
 
-**中文**
-
-| 领域           | 能力                                                                                |
-| :------------- | :---------------------------------------------------------------------------------- |
-| **文档解析**   | Word、PDF、Excel、PPT、文本；输出为 Markdown/JSON 供 LLM 使用。                     |
-| **知识库**     | 多格式上传、分块、向量化（如 Chroma）、RAG 检索。                                   |
-| **评估**       | 提交文件 → 获得结构化报告（风险项、合规差距、整改建议）。                           |
-| **LLM**        | 可配置提供商：**Ollama**（本地）、OpenAI 等。                                       |
-| **API**        | REST：提交评估、获取结果、上传/查询知识库、健康检查。                               |
-| **安全与合规** | 内置 **RBAC**（角色权限控制）、**审计日志**与 **Prompt Injection** 防护。           |
-| **Agent集成**  | 支持 **MCP (Model Context Protocol)**，可被 OpenClaw、Claude Desktop 等智能体调用。 |
+| 领域 (Area)                     | 能力 (Capabilities)                                                                                                        |
+| :------------------------------ | :------------------------------------------------------------------------------------------------------------------------- |
+| **文档解析** / **Parsing**      | Word、PDF、Excel、PPT、文本 → Markdown/JSON。                                                                              |
+| **知识库** / **Knowledge Base** | 多格式上传、分块、向量化（Chroma）、RAG 检索。<br>Multi-format upload, chunking, RAG query.                                |
+| **评估** / **Assessment**       | 提交文件 → 获得结构化报告（风险项、合规差距、整改建议）。<br>Submit files → structured report (risks, gaps, remediations). |
+| **LLM**                         | 可配置提供商：**Ollama**（本地）、OpenAI 等。<br>Configurable provider: Ollama (local), OpenAI, etc.                       |
+| **API**                         | REST API & **MCP Server** for Agent integration.                                                                           |
+| **安全与合规** / **Security**   | 内置 **RBAC**、**审计日志**与 **Prompt Injection** 防护。<br>Built-in RBAC, Audit Logs, and Prompt Injection guards.       |
+| **Agent集成** / **Integration** | 支持 **MCP**，可被 OpenClaw、Claude Desktop 等智能体调用。<br>Supports **MCP** for OpenClaw, Claude Desktop, etc.          |
 
 路线图（如 AAD/SSO、ServiceNow 集成）见 [SPEC.md](./SPEC.md)。
-
-**English**
-
-| Area                      | Capabilities                                                                                  |
-| :------------------------ | :-------------------------------------------------------------------------------------------- |
-| **Document parsing**      | Word, PDF, Excel, PPT, text; output as Markdown/JSON for the LLM.                             |
-| **Knowledge base**        | Multi-format upload, chunking, embedding (e.g. Chroma), RAG query.                            |
-| **Assessment**            | Submit files → get structured report (risk items, compliance gaps, remediations).             |
-| **LLM**                   | Configurable provider: **Ollama** (local), OpenAI, or others via abstraction layer.           |
-| **API**                   | REST: submit assessment, get result, upload to KB, query KB, health.                          |
-| **Security & Compliance** | Built-in **RBAC**, **Audit Logs**, and **Prompt Injection** guards.                           |
-| **Agent Integration**     | Supports **MCP (Model Context Protocol)** for integration with OpenClaw, Claude Desktop, etc. |
-
-Roadmap (e.g. AAD/SSO, ServiceNow): [SPEC.md](./SPEC.md).
 
 ---
 
@@ -191,34 +152,11 @@ streamlit run frontend/Home.py
 ![Knowledge Base](docs/images/streamlit-knowledge-base.png)
 *Knowledge Base Management view*
 
-### Option A: Docker（推荐）| Docker (recommended)
+### Option A: Docker（推荐 / Recommended）
 
-**中文**
-
-**前置**：已安装 [Docker](https://docs.docker.com/get-docker/) 与 [Docker Compose](https://docs.docker.com/compose/install/)。
+**前置 Prerequisites**: [Docker](https://docs.docker.com/get-docker/) & [Docker Compose](https://docs.docker.com/compose/install/).
 
 仅启动 API（使用 OpenAI 或本机已运行的 Ollama）：
-
-```bash
-git clone https://github.com/arthurpanhku/Arthor-Agent.git
-cd Arthor-Agent
-docker compose up -d
-```
-
-需要连同 **Ollama 容器** 一起启动时：
-
-```bash
-docker compose -f docker-compose.yml -f docker-compose.ollama.yml up -d
-docker compose exec ollama ollama pull llama2
-```
-
--   **API 文档（Swagger）**：[http://localhost:8000/docs](http://localhost:8000/docs)
--   **健康检查**：[http://localhost:8000/health](http://localhost:8000/health)
-
-**English**
-
-**Prerequisites**: [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/).
-
 API only (use OpenAI or Ollama on host):
 
 ```bash
@@ -227,6 +165,7 @@ cd Arthor-Agent
 docker compose up -d
 ```
 
+需要连同 **Ollama 容器** 一起启动时：
 With **Ollama in Docker**:
 
 ```bash
@@ -234,16 +173,14 @@ docker compose -f docker-compose.yml -f docker-compose.ollama.yml up -d
 docker compose exec ollama ollama pull llama2
 ```
 
--   **API docs (Swagger)**: [http://localhost:8000/docs](http://localhost:8000/docs)
--   **Health**: [http://localhost:8000/health](http://localhost:8000/health)
+-   **API 文档 (Swagger)**: [http://localhost:8000/docs](http://localhost:8000/docs)
+-   **健康检查 (Health)**: [http://localhost:8000/health](http://localhost:8000/health)
 
 ---
 
-### Option B: Python（本地开发）| Python (local dev)
+### Option B: Python（本地开发 / Local Dev）
 
-**中文**
-
-**前置**：**Python 3.10+**。可选 [Ollama](https://ollama.ai) 作为本地 LLM（`ollama pull llama2`）。
+**前置 Prerequisites**: **Python 3.10+**. Optional: [Ollama](https://ollama.ai) (`ollama pull llama2`).
 
 ```bash
 git clone https://github.com/arthurpanhku/Arthor-Agent.git
@@ -251,23 +188,7 @@ cd Arthor-Agent
 python3 -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-cp .env.example .env        # 按需编辑：LLM_PROVIDER=ollama 或 openai
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-```
-
--   **API 文档**：[http://localhost:8000/docs](http://localhost:8000/docs) · **健康检查**：[http://localhost:8000/health](http://localhost:8000/health)
-
-**English**
-
-**Prerequisites**: **Python 3.10+**. Optional: [Ollama](https://ollama.ai) for local LLM (`ollama pull llama2`).
-
-```bash
-git clone https://github.com/arthurpanhku/Arthor-Agent.git
-cd Arthor-Agent
-python3 -m venv .venv
-source .venv/bin/activate   # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-cp .env.example .env       # Edit if needed: LLM_PROVIDER=ollama or openai
+cp .env.example .env        # Edit if needed: LLM_PROVIDER=ollama or openai
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
@@ -362,19 +283,10 @@ Arthor-Agent/
 
 ## Documentation and PRD | 文档与规格
 
-**中文**
-
--   **[ARCHITECTURE.md](./ARCHITECTURE.md)** — 系统架构：高层图、Mermaid 视图（逻辑/组件/时序/集成/部署）、组件设计、数据流、安全架构。
--   **[SPEC.md](./SPEC.md)** — 产品需求与规格：问题陈述、方案、架构摘要、功能、安全控制与开放问题。
--   **[CHANGELOG.md](./CHANGELOG.md)** — 版本历史；[Releases](https://github.com/arthurpanhku/Arthor-Agent/releases) 发布说明。
--   **设计文档** [docs/](./docs/)：架构与技术栈、API 规范（OpenAPI）、评估报告与 Skill 契约、集成指南（AAD、ServiceNow）、部署手册。Q1 发布清单：[docs/LAUNCH-CHECKLIST.md](./docs/LAUNCH-CHECKLIST.md)。
-
-**English**
-
--   **[ARCHITECTURE.md](./ARCHITECTURE.md)** — System architecture: high-level diagram, Mermaid views (logical, component, sequence, integration, deployment), component design, data flow, security architecture.
--   **[SPEC.md](./SPEC.md)** — Product requirements: problem statement, solution, architecture summary, features, security controls, and open questions for development.
--   **[CHANGELOG.md](./CHANGELOG.md)** — Version history; [Releases](https://github.com/arthurpanhku/Arthor-Agent/releases) for release notes.
--   **Design docs** in [docs/](./docs/): architecture and tech stack, API spec (OpenAPI), assessment report and Skill contract, integration guide (AAD, ServiceNow), deployment runbook. Q1 launch: [docs/LAUNCH-CHECKLIST.md](./docs/LAUNCH-CHECKLIST.md).
+-   **[ARCHITECTURE.md](./ARCHITECTURE.md)** — 系统架构：高层图、Mermaid 视图（逻辑/组件/时序/集成/部署）、组件设计、数据流、安全架构。<br>System architecture: high-level diagram, Mermaid views, component design, data flow, security.
+-   **[SPEC.md](./SPEC.md)** — 产品需求与规格：问题陈述、方案、架构摘要、功能、安全控制与开放问题。<br>Product requirements: problem statement, solution, features, security controls.
+-   **[CHANGELOG.md](./CHANGELOG.md)** — 版本历史；[Releases](https://github.com/arthurpanhku/Arthor-Agent/releases) 发布说明。<br>Version history; Releases.
+-   **设计文档 Design docs** [docs/](./docs/)：架构与技术栈、API 规范（OpenAPI）、评估报告与 Skill 契约、集成指南（AAD、ServiceNow）、部署手册。Q1 发布清单：[docs/LAUNCH-CHECKLIST.md](./docs/LAUNCH-CHECKLIST.md)。<br>Architecture, API spec, contracts, integration guides, deployment runbook.
 
 ---
 
@@ -392,22 +304,14 @@ Arthor-Agent/
 
 ## Security | 安全
 
-**中文**
-
--   **漏洞报告**：负责任披露请见 [SECURITY.md](./SECURITY.md)。
--   **安全需求**：项目遵循 [SPEC §7.2](./SPEC.md) 中定义的安全控制（身份、数据保护、应用安全、运维、供应链）。
-
-**English**
-
--   **Vulnerability reporting**: See [SECURITY.md](./SECURITY.md) for how to report issues responsibly.
--   **Security requirements**: The project follows the security controls defined in [SPEC §7.2](./SPEC.md) (identity, data protection, application security, operations, supply chain).
+-   **漏洞报告 / Vulnerability reporting**：负责任披露请见 [SECURITY.md](./SECURITY.md)。<br>See [SECURITY.md](./SECURITY.md) for responsible disclosure.
+-   **安全需求 / Security requirements**：项目遵循 [SPEC §7.2](./SPEC.md) 中定义的安全控制（身份、数据保护、应用安全、运维、供应链）。<br>Follows security controls in [SPEC §7.2](./SPEC.md).
 
 ---
 
 ## License | 许可证
 
-本项目采用 **MIT License**，详见 [LICENSE](./LICENSE) 文件。  
-This project is licensed under the **MIT License** — see the [LICENSE](./LICENSE) file for details.
+本项目采用 **MIT License**，详见 [LICENSE](./LICENSE) 文件。<br>This project is licensed under the **MIT License** — see the [LICENSE](./LICENSE) file for details.
 
 ---
 
@@ -417,5 +321,4 @@ This project is licensed under the **MIT License** — see the [LICENSE](./LICEN
 -   **仓库 Repository**: [github.com/arthurpanhku/Arthor-Agent](https://github.com/arthurpanhku/Arthor-Agent)
 -   **规格与设计文档 SPEC and design docs**: 见上文链接。See links above.
 
-**中文**：若你在组织中使用 Arthor Agent 或希望参与贡献，欢迎通过 GitHub Discussions 或 Issues 联系我们。  
-**English**: If you use Arthor Agent in your organization or contribute back, we’d love to hear from you (e.g. via GitHub Discussions or Issues).
+若你在组织中使用 Arthor Agent 或希望参与贡献，欢迎通过 GitHub Discussions 或 Issues 联系我们。<br>If you use Arthor Agent in your organization or contribute back, we’d love to hear from you (e.g. via GitHub Discussions or Issues).
