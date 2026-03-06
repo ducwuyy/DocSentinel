@@ -2,9 +2,8 @@
 Assessment API: submit task, get result.
 PRD §6; docs/02-api-specification.yaml.
 """
-from __future__ import annotations
-
 from datetime import datetime, timezone
+from typing import List, Optional
 from uuid import UUID, uuid4
 
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
@@ -16,14 +15,14 @@ from app.parser import parse_file
 router = APIRouter(prefix="/assessments", tags=["assessment"])
 
 # In-memory task store for MVP (replace with DB/Redis later)
-_tasks: dict[str, dict] = {}
+_tasks: dict = {}
 
 
 @router.post("", response_model=AssessmentTaskCreated)
 async def submit_assessment(
-    files: list[UploadFile] = File(..., description="Documents to assess"),
-    scenario_id: str | None = Form(None),
-    project_id: str | None = Form(None),
+    files: List[UploadFile] = File(..., description="Documents to assess"),
+    scenario_id: Optional[str] = Form(None),
+    project_id: Optional[str] = Form(None),
 ):
     """Submit an assessment task; returns task_id for polling."""
     from app.core.config import settings

@@ -2,9 +2,8 @@
 Agent orchestration: parse docs, query KB, invoke Skill, call LLM, produce report.
 PRD §5.2.1; docs/03 — Assessment report schema and Skill contract.
 """
-from __future__ import annotations
-
 from datetime import datetime, timezone
+from typing import List, Optional
 from uuid import UUID
 
 from app.core.config import settings
@@ -22,9 +21,9 @@ from app.models.parser import ParsedDocument
 
 async def run_assessment(
     task_id: UUID,
-    parsed_documents: list[ParsedDocument],
-    scenario_id: str | None = None,
-    project_id: str | None = None,
+    parsed_documents: List[ParsedDocument],
+    scenario_id: Optional[str] = None,
+    project_id: Optional[str] = None,
 ) -> AssessmentReport:
     """
     Run the assessment pipeline: RAG retrieval + LLM-based Skill -> report.
@@ -77,16 +76,16 @@ Respond in JSON only, with keys: summary (string), risk_items (array), complianc
 def _parse_llm_output_to_report(
     raw: str,
     task_id: UUID,
-    scenario_id: str | None,
-    project_id: str | None,
+    scenario_id: Optional[str],
+    project_id: Optional[str],
 ) -> AssessmentReport:
     """Extract JSON from LLM response and map to AssessmentReport."""
     import json
     import re
 
-    risk_items: list[RiskItem] = []
-    compliance_gaps: list[ComplianceGap] = []
-    remediations: list[Remediation] = []
+    risk_items: List[RiskItem] = []
+    compliance_gaps: List[ComplianceGap] = []
+    remediations: List[Remediation] = []
     summary = "Assessment completed."
 
     # Try to find JSON block

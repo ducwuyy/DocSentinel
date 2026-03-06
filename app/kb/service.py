@@ -2,10 +2,9 @@
 Knowledge base: chunk, embed, store in Chroma; RAG query.
 PRD §5.2.4; docs/01 — Chroma, sentence-transformers for embedding.
 """
-from __future__ import annotations
-
 import hashlib
 from pathlib import Path
+from typing import Optional
 
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import Chroma
@@ -46,7 +45,7 @@ class KnowledgeBaseService:
             separators=["\n\n", "\n", "。", " ", ""],
         )
 
-    def add_document(self, parsed: ParsedDocument, document_id: str | None = None) -> str:
+    def add_document(self, parsed: ParsedDocument, document_id: Optional[str] = None) -> str:
         """Ingest one parsed document into the KB; return document id."""
         content = parsed.content if isinstance(parsed.content, str) else str(parsed.content)
         doc_id = document_id or hashlib.sha256(content.encode()).hexdigest()[:16]
