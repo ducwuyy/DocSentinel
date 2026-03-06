@@ -1,5 +1,5 @@
 import os
-from PIL import Image, ImageDraw, ImageFont, ImageOps, ImageFilter
+from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 def create_social_preview():
     # Configuration
@@ -42,94 +42,114 @@ def create_social_preview():
             tag_font = ImageFont.load_default()
             print("Warning: Custom fonts not found, using default.")
 
-    # --- Left Side: Branding ---
+    # --- Layout Logic ---
+    # Left Block (Text + Mascot): x=80
+    # Right Block (Screenshot): x=550 to 1280
     
-    # Draw Title
-    draw.text((80, 150), "Arthor Agent", font=title_font, fill=TEXT_COLOR)
+    left_margin = 80
     
-    # Draw Subtitle - Improved contrast
-    draw.text((80, 270), "Automated Security Assessment", font=subtitle_font, fill=SUBTITLE_COLOR)
-    draw.text((80, 320), "with LLMs & RAG", font=subtitle_font, fill=SUBTITLE_COLOR)
+    # 1. Draw Mascot (Top Left)
+    mascot_size = 150
+    mascot_y = 80
     
-    # Draw Tags/Badges (Simulated) - High contrast style
-    tags = ["MCP Ready", "Local LLM", "Python"]
-    tag_x = 80
-    tag_y = 420
-    for tag in tags:
-        # Draw pill background
-        bbox = draw.textbbox((tag_x, tag_y), tag, font=tag_font)
-        padding = 15
-        pill_box = (tag_x, tag_y, tag_x + (bbox[2]-bbox[0]) + padding*2, tag_y + (bbox[3]-bbox[1]) + padding*2)
-        # Use ACCENT_BG for fill to make text pop
-        draw.rounded_rectangle(pill_box, radius=10, fill=ACCENT_BG, outline=ACCENT_COLOR, width=2)
-        # Use TEXT_COLOR (White) for text instead of accent color for better readability
-        draw.text((tag_x + padding, tag_y + padding), tag, font=tag_font, fill=TEXT_COLOR)
-        tag_x += (bbox[2]-bbox[0]) + padding*2 + 30
-
-    # Draw Mascot (if exists)
     if os.path.exists(mascot_path):
         try:
             mascot = Image.open(mascot_path).convert("RGBA")
-            # Resize mascot
-            mascot.thumbnail((200, 200))
-            # Paste mascot
-            img.paste(mascot, (80, 50), mascot)
-            # Move title down if mascot is there? No, let's put mascot top-right of the text area?
-            # Actually, let's put mascot next to title or above.
-            # Let's re-layout: Mascot at (80, 50) is overlapping title at (80, 150) potentially?
-            # Title y=150. Mascot size 200. 50+200=250. Overlap.
-            # Let's put mascot to the right of the text block or top-left.
-            # Revised: Mascot Top-Left (50, 50), Title starts at x=50, y=260?
-            # Or Mascot at bottom left.
-            # Let's put Mascot at (80, 40) scaled to 100x100
-            mascot.thumbnail((100, 100))
-            img.paste(mascot, (80, 40), mascot)
-            # Adjust Text Positions
-            draw.text((200, 40), "Arthor Agent", font=title_font, fill=TEXT_COLOR)
-            # Reset subtitle positions
-            draw.text((200, 160), "Automated Security Assessment", font=subtitle_font, fill=SUBTITLE_COLOR)
-            draw.text((200, 210), "with LLMs & RAG", font=subtitle_font, fill=SUBTITLE_COLOR)
             
-            # Reset tags
-            tag_x = 200
-            tag_y = 300
-            for tag in tags:
-                bbox = draw.textbbox((tag_x, tag_y), tag, font=tag_font)
-                padding = 10
-                pill_box = (tag_x, tag_y, tag_x + (bbox[2]-bbox[0]) + padding*2, tag_y + (bbox[3]-bbox[1]) + padding*2)
-                draw.rounded_rectangle(pill_box, radius=10, fill=ACCENT_BG, outline=ACCENT_COLOR, width=2)
-                draw.text((tag_x + padding, tag_y + padding), tag, font=tag_font, fill=TEXT_COLOR)
-                tag_x += (bbox[2]-bbox[0]) + padding*2 + 20
-                
+            # Create a circular mask/background for mascot
+            # White background circle
+            circle_bg = Image.new("RGBA", (mascot_size, mascot_size), (0,0,0,0))
+            circle_draw = ImageDraw.Draw(circle_bg)
+            circle_draw.ellipse((0, 0, mascot_size, mascot_size), fill="white")
+            
+            # Resize mascot to fit inside circle with some padding
+            padding = 20
+            inner_size = mascot_size - (padding * 2)
+            mascot.thumbnail((inner_size, inner_size))
+            
+            # Center mascot in circle
+            offset = ((mascot_size - mascot.width) // 2, (mascot_size - mascot.height) // 2)
+            circle_bg.paste(mascot, offset, mascot)
+            
+            # Paste the composite icon onto the main image
+            img.paste(circle_bg, (left_margin, mascot_y), circle_bg)
+            
         except Exception as e:
             print(f"Could not process mascot: {e}")
+    
+    # 2. Draw Title (Below Mascot)
+    title_y = mascot_y + mascot_size + 30
+    draw.text((left_margin, title_y), "Arthor Agent", font=title_font, fill=TEXT_COLOR)
+    
+    # 3. Draw Subtitle
+    subtitle_y = title_y + 120
+    draw.text((left_margin, subtitle_y), "Automated Security Assessment", font=subtitle_font, fill=SUBTITLE_COLOR)
+    draw.text((left_margin, subtitle_y + 50), "with LLMs & RAG", font=subtitle_font, fill=SUBTITLE_COLOR)
+    
+    # 4. Draw Tags (Bottom Left)
+    tag_x = left_margin
+    tag_y = subtitle_y + 120
+    tags = ["MCP Ready", "Local LLM", "Python"]
+    
+    for tag in tags:
+        bbox = draw.textbbox((tag_x, tag_y), tag, font=tag_font)
+        padding_x = 20
+        padding_y = 10
+        width = bbox[2] - bbox[0]
+        height = bbox[3] - bbox[1]
+        
+        pill_box = (
+            tag_x, 
+            tag_y, 
+            tag_x + width + padding_x * 2, 
+            tag_y + height + padding_y * 2
+        )
+        
+        draw.rounded_rectangle(pill_box, radius=10, fill=ACCENT_BG, outline=ACCENT_COLOR, width=2)
+        draw.text((tag_x + padding_x, tag_y + padding_y), tag, font=tag_font, fill=TEXT_COLOR)
+        
+        tag_x += (width + padding_x * 2) + 20
 
     # --- Right Side: Screenshot ---
     if os.path.exists(screenshot_path):
         try:
             screenshot = Image.open(screenshot_path).convert("RGBA")
-            # Resize to fit nicely
-            # Max height 500, max width 700
-            screenshot.thumbnail((800, 500))
             
-            # Add rounded corners to screenshot
+            # Target size for screenshot
+            target_h = 500
+            # Calculate width to maintain aspect ratio
+            ratio = target_h / screenshot.height
+            target_w = int(screenshot.width * ratio)
+            
+            screenshot = screenshot.resize((target_w, target_h), Image.Resampling.LANCZOS)
+            
+            # Position: Right aligned, vertically centered
+            # Let it bleed off the right edge slightly or just padding
+            screenshot_x = 1280 - target_w + 100 # Push it right a bit to crop empty space if wide
+            if screenshot_x < 650: # Don't overlap text
+                screenshot_x = 650
+                
+            screenshot_y = (HEIGHT - target_h) // 2
+            
+            # Add rounded corners
             mask = Image.new("L", screenshot.size, 0)
             draw_mask = ImageDraw.Draw(mask)
             draw_mask.rounded_rectangle((0, 0) + screenshot.size, radius=20, fill=255)
             
-            # Add shadow/glow
-            # Create a larger image for shadow
-            shadow_size = (screenshot.width + 40, screenshot.height + 40)
-            shadow = Image.new("RGBA", shadow_size, (0,0,0,0))
+            # Shadow
+            shadow_offset = 20
+            shadow = Image.new("RGBA", (screenshot.width + shadow_offset*2, screenshot.height + shadow_offset*2), (0,0,0,0))
             shadow_draw = ImageDraw.Draw(shadow)
-            shadow_draw.rounded_rectangle((10, 10, shadow_size[0]-10, shadow_size[1]-10), radius=20, fill=(0,0,0, 100))
-            shadow = shadow.filter(ImageFilter.GaussianBlur(10))
+            # Draw shadow rect
+            shadow_draw.rounded_rectangle(
+                (shadow_offset, shadow_offset, shadow.width-shadow_offset, shadow.height-shadow_offset), 
+                radius=20, 
+                fill=(0,0,0, 80)
+            )
+            shadow = shadow.filter(ImageFilter.GaussianBlur(15))
             
-            # Paste shadow
-            screenshot_x = 1280 - screenshot.width - 50
-            screenshot_y = (640 - screenshot.height) // 2
-            
-            img.paste(shadow, (screenshot_x - 20, screenshot_y - 20), shadow)
+            # Paste shadow then image
+            img.paste(shadow, (screenshot_x - shadow_offset, screenshot_y - shadow_offset), shadow)
             img.paste(screenshot, (screenshot_x, screenshot_y), mask)
             
         except Exception as e:
