@@ -160,7 +160,22 @@ Roadmap (e.g. AAD/SSO, ServiceNow, RBAC): [SPEC.md](./SPEC.md).
 
 ## Quick Start | 快速开始
 
-📹 **演示界面**：启动 API 后打开 [docs/demo.html](docs/demo.html)，选择文件并点击 Assess 即可获得评估报告。
+� **New Streamlit Frontend**:
+Run the modern dashboard for a full experience:
+
+```bash
+pip install streamlit plotly pandas
+streamlit run frontend/Home.py
+```
+
+![Streamlit Dashboard](docs/images/streamlit-dashboard.png)
+*Dashboard view*
+
+![Assessment Workbench](docs/images/streamlit-workbench.png)
+*Assessment Workbench view*
+
+### Legacy Demo (Optional)
+�📹 **演示界面**：启动 API 后打开 [docs/demo.html](docs/demo.html)，选择文件并点击 Assess 即可获得评估报告。
 
 ![Assessment demo UI](docs/images/demo-assessment-ui.png)
 
