@@ -1,8 +1,10 @@
 import re
-from fastapi import Request, HTTPException
+
+from fastapi import Request
 
 # Basic sanitization for prompt injection
-# This is a heuristic-based approach and should be enhanced with LLM-based guardrails later
+# This is a heuristic-based approach and should be enhanced with LLM-based
+# guardrails later
 INJECTION_KEYWORDS = [
     r"ignore previous instructions",
     r"system prompt",
@@ -11,8 +13,9 @@ INJECTION_KEYWORDS = [
     r"jailbreak",
     r"admin access",
     r"delete all",
-    r"drop table"
+    r"drop table",
 ]
+
 
 def sanitize_input(text: str) -> str:
     """
@@ -20,7 +23,7 @@ def sanitize_input(text: str) -> str:
     """
     if not text:
         return text
-        
+
     # Check for known injection patterns
     for pattern in INJECTION_KEYWORDS:
         if re.search(pattern, text, re.IGNORECASE):
@@ -28,10 +31,11 @@ def sanitize_input(text: str) -> str:
             # In production, this should raise a SecurityException or handle gracefully
             # raising HTTPException might be too aggressive if it's a false positive,
             # but for a security agent, better safe than sorry.
-            pass 
+            pass
             # We will just return the text for now but logging would happen here
-            
+
     return text
+
 
 async def check_prompt_injection(request: Request):
     """

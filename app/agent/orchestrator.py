@@ -2,8 +2,8 @@
 Agent orchestration: parse docs, query KB, invoke Skill, call LLM, produce report.
 PRD §5.2.1; docs/03 — Assessment report schema and Skill contract.
 """
+
 from datetime import datetime, timezone
-from typing import List, Optional
 from uuid import UUID
 
 from app.core.config import settings
@@ -12,8 +12,8 @@ from app.llm.base import invoke_llm
 from app.models.assessment import (
     AssessmentReport,
     ComplianceGap,
-    ReportMetadata,
     Remediation,
+    ReportMetadata,
     RiskItem,
 )
 from app.models.parser import ParsedDocument
@@ -21,9 +21,9 @@ from app.models.parser import ParsedDocument
 
 async def run_assessment(
     task_id: UUID,
-    parsed_documents: List[ParsedDocument],
-    scenario_id: Optional[str] = None,
-    project_id: Optional[str] = None,
+    parsed_documents: list[ParsedDocument],
+    scenario_id: str | None = None,
+    project_id: str | None = None,
 ) -> AssessmentReport:
     """
     Run the assessment pipeline: RAG retrieval + LLM-based Skill -> report.
@@ -39,19 +39,35 @@ async def run_assessment(
     kb = KnowledgeBaseService()
     try:
         chunks = kb.query(combined_input[:2000], top_k=5)  # query from start of content
-        kb_context = "\n\n".join(d.page_content for d in chunks) if chunks else "No policy documents loaded."
+        kb_context = (
+            "\n\n".join(d.page_content for d in chunks)
+            if chunks
+            else "No policy documents loaded."
+        )
     except Exception:
         kb_context = "Knowledge base not available or empty."
 
-    # 3) Invoke LLM to produce structured assessment (single Skill: policy/questionnaire check)
-    system_prompt = """You are a security assessor. Given document content and optional policy/knowledge base excerpts, identify:
-1. Risk items (id, title, severity: low/medium/high/critical, description, source_ref if possible)
-2. Compliance gaps (id, control_or_clause, gap_description, evidence_suggestion)
-3. Remediations (id, action, priority: low/medium/high, related_risk_ids or related_gap_ids if applicable)
+    # 3) Invoke LLM to produce structured assessment
+    # (single Skill: policy/questionnaire check)
+    system_prompt = (
+        "You are a security assessor. Given document content and optional "
+        "policy/knowledge base excerpts, identify:\n"
+        "1. Risk items (id, title, severity: low/medium/high/critical, description, "
+        "source_ref if possible)\n"
+        "2. Compliance gaps (id, control_or_clause, gap_description, "
+        "evidence_suggestion)\n"
+        "3. Remediations (id, action, priority: low/medium/high, related_risk_ids or "
+        "related_gap_ids if applicable)\n\n"
+        "Respond in JSON only, with keys: summary (string), risk_items (array), "
+        "compliance_gaps (array), remediations (array). Use the exact field names. "
+        "If none, use empty arrays."
+    )
 
-Respond in JSON only, with keys: summary (string), risk_items (array), compliance_gaps (array), remediations (array). Use the exact field names. If none, use empty arrays."""
-
-    user_prompt = f"""## Documents to assess\n\n{combined_input[:12000]}\n\n## Reference (policy/KB excerpts)\n\n{kb_context[:4000]}\n\nProduce the assessment JSON."""
+    user_prompt = (
+        f"## Documents to assess\n\n{combined_input[:12000]}\n\n"
+        f"## Reference (policy/KB excerpts)\n\n{kb_context[:4000]}\n\n"
+        "Produce the assessment JSON."
+    )
 
     try:
         raw = await invoke_llm(system_prompt, user_prompt)
@@ -76,16 +92,16 @@ Respond in JSON only, with keys: summary (string), risk_items (array), complianc
 def _parse_llm_output_to_report(
     raw: str,
     task_id: UUID,
-    scenario_id: Optional[str],
-    project_id: Optional[str],
+    scenario_id: str | None,
+    project_id: str | None,
 ) -> AssessmentReport:
     """Extract JSON from LLM response and map to AssessmentReport."""
     import json
     import re
 
-    risk_items: List[RiskItem] = []
-    compliance_gaps: List[ComplianceGap] = []
-    remediations: List[Remediation] = []
+    risk_items: list[RiskItem] = []
+    compliance_gaps: list[ComplianceGap] = []
+    remediations: list[Remediation] = []
     summary = "Assessment completed."
 
     # Try to find JSON block
@@ -126,7 +142,10 @@ def _parse_llm_output_to_report(
                     )
                 )
         except (json.JSONDecodeError, KeyError, TypeError):
-            summary = "Assessment completed with partial parsing; raw output may contain more."
+            summary = (
+                "Assessment completed with partial parsing; "
+                "raw output may contain more."
+            )
 
     return AssessmentReport(
         version="1.0",

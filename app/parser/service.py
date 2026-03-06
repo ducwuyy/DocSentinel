@@ -2,6 +2,7 @@
 Document parsing: multi-format to LLM-readable (Markdown/JSON).
 PRD §5.2.5; docs/01 — PyMuPDF, python-docx, openpyxl, python-pptx.
 """
+
 import io
 from pathlib import Path
 
@@ -25,7 +26,9 @@ def _parse_pdf(content: bytes, filename: str) -> ParsedDocument:
     return ParsedDocument(
         format="markdown",
         content=text,
-        metadata=ParsedDocumentMetadata(filename=_safe_filename(filename), type="application/pdf", pages=len(parts)),
+        metadata=ParsedDocumentMetadata(
+            filename=_safe_filename(filename), type="application/pdf", pages=len(parts)
+        ),
     )
 
 
@@ -41,7 +44,10 @@ def _parse_docx(content: bytes, filename: str) -> ParsedDocument:
     return ParsedDocument(
         format="markdown",
         content=text,
-        metadata=ParsedDocumentMetadata(filename=_safe_filename(filename), type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"),
+        metadata=ParsedDocumentMetadata(
+            filename=_safe_filename(filename),
+            type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        ),
     )
 
 
@@ -59,7 +65,10 @@ def _parse_xlsx(content: bytes, filename: str) -> ParsedDocument:
     return ParsedDocument(
         format="markdown",
         content=text,
-        metadata=ParsedDocumentMetadata(filename=_safe_filename(filename), type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"),
+        metadata=ParsedDocumentMetadata(
+            filename=_safe_filename(filename),
+            type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        ),
     )
 
 
@@ -77,7 +86,10 @@ def _parse_pptx(content: bytes, filename: str) -> ParsedDocument:
     return ParsedDocument(
         format="markdown",
         content=text,
-        metadata=ParsedDocumentMetadata(filename=_safe_filename(filename), type="application/vnd.openxmlformats-officedocument.presentationml.presentation"),
+        metadata=ParsedDocumentMetadata(
+            filename=_safe_filename(filename),
+            type="application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        ),
     )
 
 
@@ -89,7 +101,9 @@ def _parse_plain(content: bytes, filename: str, content_type: str) -> ParsedDocu
     return ParsedDocument(
         format="markdown",
         content=text.strip() or "(empty)",
-        metadata=ParsedDocumentMetadata(filename=_safe_filename(filename), type=content_type or "text/plain"),
+        metadata=ParsedDocumentMetadata(
+            filename=_safe_filename(filename), type=content_type or "text/plain"
+        ),
     )
 
 
@@ -113,6 +127,8 @@ def parse_file(content: bytes, filename: str) -> ParsedDocument:
     path = Path(filename)
     suffix = path.suffix.lower()
     if suffix not in ALLOWED_EXTENSIONS:
-        raise ValueError(f"Unsupported file type: {suffix}. Allowed: {sorted(ALLOWED_EXTENSIONS)}")
+        raise ValueError(
+            f"Unsupported file type: {suffix}. Allowed: {sorted(ALLOWED_EXTENSIONS)}"
+        )
     parser_fn = EXTENSION_TO_PARSER[suffix]
     return parser_fn(content, filename)

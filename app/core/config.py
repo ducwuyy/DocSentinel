@@ -2,6 +2,7 @@
 Application configuration via environment variables.
 Aligns with docs/05-deployment-runbook.md.
 """
+
 from functools import lru_cache
 from typing import Literal
 

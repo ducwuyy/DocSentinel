@@ -2,8 +2,8 @@
 Assessment API: submit task, get result.
 PRD §6; docs/02-api-specification.yaml.
 """
+
 from datetime import datetime, timezone
-from typing import List, Optional
 from uuid import UUID, uuid4
 
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
@@ -20,9 +20,11 @@ _tasks: dict = {}
 
 @router.post("", response_model=AssessmentTaskCreated)
 async def submit_assessment(
-    files: List[UploadFile] = File(..., description="Documents to assess"),
-    scenario_id: Optional[str] = Form(None),
-    project_id: Optional[str] = Form(None),
+    files: list[UploadFile] = File(  # noqa: B008
+        ..., description="Documents to assess"
+    ),
+    scenario_id: str | None = Form(None),
+    project_id: str | None = Form(None),
 ):
     """Submit an assessment task; returns task_id for polling."""
     from app.core.config import settings
@@ -37,12 +39,14 @@ async def submit_assessment(
     for f in files:
         content = await f.read()
         if len(content) > settings.upload_max_bytes:
-            raise HTTPException(413, f"File {f.filename} exceeds {settings.UPLOAD_MAX_FILE_SIZE_MB}MB")
+            raise HTTPException(
+                413, f"File {f.filename} exceeds {settings.UPLOAD_MAX_FILE_SIZE_MB}MB"
+            )
         try:
             parsed = parse_file(content, f.filename or "unknown")
             parsed_list.append(parsed)
         except ValueError as e:
-            raise HTTPException(400, str(e))
+            raise HTTPException(400, str(e)) from e
 
     created_at = datetime.now(timezone.utc)
     _tasks[str(task_id)] = {
@@ -55,7 +59,9 @@ async def submit_assessment(
 
     # Run assessment (blocking in async - for MVP; use background task in production)
     try:
-        report = await run_assessment(task_id, parsed_list, scenario_id=scenario_id, project_id=project_id)
+        report = await run_assessment(
+            task_id, parsed_list, scenario_id=scenario_id, project_id=project_id
+        )
         _tasks[str(task_id)]["status"] = "completed"
         _tasks[str(task_id)]["report"] = report.model_dump()
         _tasks[str(task_id)]["completed_at"] = datetime.now(timezone.utc)
@@ -67,7 +73,10 @@ async def submit_assessment(
     return AssessmentTaskCreated(
         task_id=task_id,
         status="accepted",
-        message="Assessment task created. Use GET /assessments/{task_id} to retrieve the result.",
+        message=(
+            "Assessment task created. Use GET /assessments/{task_id} "
+            "to retrieve the result."
+        ),
     )
 
 

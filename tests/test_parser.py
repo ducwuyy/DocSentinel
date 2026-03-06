@@ -1,4 +1,5 @@
 """Tests for document parser (no LLM)."""
+
 import pytest
 
 from app.parser import parse_file

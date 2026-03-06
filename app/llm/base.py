@@ -2,6 +2,7 @@
 LLM abstraction: unified interface for OpenAI and Ollama.
 PRD §5.2.6; switch provider via config without changing Agent logic.
 """
+
 from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import HumanMessage, SystemMessage
 

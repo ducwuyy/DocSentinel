@@ -2,11 +2,12 @@
 Arthor Agent — FastAPI application.
 PRD §5; docs/01-architecture-and-tech-stack.md.
 """
+
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.api import assessments, health, kb
 from app.core.config import settings
@@ -20,7 +21,10 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Arthor Agent API",
-    description="Arthor Agent — automated security assessment for documents and questionnaires. PRD-aligned.",
+    description=(
+        "Arthor Agent — automated security assessment for documents and "
+        "questionnaires. PRD-aligned."
+    ),
     version="0.1.0",
     lifespan=lifespan,
     docs_url="/api-docs",
@@ -50,5 +54,5 @@ async def root():
         "service": "Arthor Agent",
         "api_docs": "/api-docs",
         "demo": "/docs/demo.html",
-        "health": "/health"
+        "health": "/health",
     }

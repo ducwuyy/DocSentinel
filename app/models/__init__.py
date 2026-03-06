@@ -1,10 +1,10 @@
 from .assessment import (
     AssessmentReport,
+    AssessmentTaskCreated,
+    AssessmentTaskResult,
     ComplianceGap,
     Remediation,
     RiskItem,
-    AssessmentTaskCreated,
-    AssessmentTaskResult,
 )
 from .parser import ParsedDocument
 

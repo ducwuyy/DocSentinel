@@ -1,5 +1,4 @@
 """Tests for health and root endpoints."""
-import pytest
 
 
 def test_health_ok(client):
@@ -16,7 +15,7 @@ def test_root_returns_service_info(client):
     assert r.status_code == 200
     data = r.json()
     assert data.get("service") == "Arthor Agent"
-    assert "docs" in data
+    assert "api_docs" in data
     assert "health" in data
 
 

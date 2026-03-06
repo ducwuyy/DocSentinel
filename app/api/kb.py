@@ -1,4 +1,5 @@
 """Knowledge base API: upload document, query (RAG)."""
+
 from fastapi import APIRouter, File, HTTPException, UploadFile
 from pydantic import BaseModel
 
@@ -14,7 +15,7 @@ class KBQueryRequest(BaseModel):
 
 
 @router.post("/documents")
-async def upload_document(file: UploadFile = File(...)):
+async def upload_document(file: UploadFile = File(...)):  # noqa: B008
     """Upload a document to the knowledge base."""
     from app.core.config import settings
 
@@ -24,7 +25,7 @@ async def upload_document(file: UploadFile = File(...)):
     try:
         parsed = parse_file(content, file.filename or "unknown")
     except ValueError as e:
-        raise HTTPException(400, str(e))
+        raise HTTPException(400, str(e)) from e
     kb = KnowledgeBaseService()
     doc_id = kb.add_document(parsed)
     return {"document_id": doc_id}
@@ -35,4 +36,6 @@ async def query_kb(body: KBQueryRequest):
     """RAG query over the knowledge base."""
     kb = KnowledgeBaseService()
     docs = kb.query(body.query, top_k=body.top_k)
-    return {"chunks": [{"content": d.page_content, "metadata": d.metadata} for d in docs]}
+    return {
+        "chunks": [{"content": d.page_content, "metadata": d.metadata} for d in docs]
+    }
