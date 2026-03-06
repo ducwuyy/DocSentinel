@@ -2,6 +2,8 @@
 Agent orchestration: parse docs, query KB, invoke Skill, call LLM, produce report.
 PRD §5.2.1; docs/03 — Assessment report schema and Skill contract.
 """
+from __future__ import annotations
+
 from datetime import datetime, timezone
 from uuid import UUID
 

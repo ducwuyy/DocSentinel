@@ -2,6 +2,8 @@
 Assessment API: submit task, get result.
 PRD §6; docs/02-api-specification.yaml.
 """
+from __future__ import annotations
+
 from datetime import datetime, timezone
 from uuid import UUID, uuid4
 
