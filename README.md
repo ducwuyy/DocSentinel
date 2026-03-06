@@ -315,6 +315,12 @@ Arthor-Agent/
 
 ---
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=arthurpanhku/Arthor-Agent&type=Date)](https://star-history.com/#arthurpanhku/Arthor-Agent&Date)
+
+---
+
 ## Author and links | 作者与链接
 
 -   **作者 Author**: PAN CHAO (Arthur Pan)
