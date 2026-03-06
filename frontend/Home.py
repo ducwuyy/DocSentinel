@@ -82,17 +82,17 @@ with c1:
 with c2:
     st.info("To update policies or standards, go to **Knowledge Base**.")
 
-# Custom CSS
-st.markdown("""
-<style>
-    .stMetric {
-        background-color: #1e293b;
-        padding: 15px;
-        border-radius: 10px;
-        border: 1px solid #334155;
-    }
-    [data-testid="stSidebar"] {
-        background-color: #0f172a;
-    }
-</style>
-""", unsafe_allow_html=True)
+# Custom CSS - Removed to ensure compatibility with both Light and Dark modes
+# st.markdown("""
+# <style>
+#     .stMetric {
+#         background-color: #1e293b;
+#         padding: 15px;
+#         border-radius: 10px;
+#         border: 1px solid #334155;
+#     }
+#     [data-testid="stSidebar"] {
+#         background-color: #0f172a;
+#     }
+# </style>
+# """, unsafe_allow_html=True)
