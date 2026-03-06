@@ -4,9 +4,12 @@ from PIL import Image, ImageDraw, ImageFont, ImageOps, ImageFilter
 def create_social_preview():
     # Configuration
     WIDTH, HEIGHT = 1280, 640
-    BG_COLOR = "#0f172a"  # Dark Slate
-    TEXT_COLOR = "#ffffff"
-    ACCENT_COLOR = "#3b82f6"  # Blue
+    # Use a high-contrast gradient or solid dark background
+    BG_COLOR = "#0B1120"  # Very Dark Slate (almost black)
+    TEXT_COLOR = "#F8FAFC" # Slate 50 (Very bright white)
+    SUBTITLE_COLOR = "#CBD5E1" # Slate 300 (Light grey)
+    ACCENT_COLOR = "#3B82F6"  # Blue 500 (Vibrant Blue)
+    ACCENT_BG = "#1E3A8A" # Blue 900 (Dark Blue for tags)
     
     # Paths
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -44,11 +47,11 @@ def create_social_preview():
     # Draw Title
     draw.text((80, 150), "Arthor Agent", font=title_font, fill=TEXT_COLOR)
     
-    # Draw Subtitle
-    draw.text((80, 270), "Automated Security Assessment", font=subtitle_font, fill="#94a3b8")
-    draw.text((80, 320), "with LLMs & RAG", font=subtitle_font, fill="#94a3b8")
+    # Draw Subtitle - Improved contrast
+    draw.text((80, 270), "Automated Security Assessment", font=subtitle_font, fill=SUBTITLE_COLOR)
+    draw.text((80, 320), "with LLMs & RAG", font=subtitle_font, fill=SUBTITLE_COLOR)
     
-    # Draw Tags/Badges (Simulated)
+    # Draw Tags/Badges (Simulated) - High contrast style
     tags = ["MCP Ready", "Local LLM", "Python"]
     tag_x = 80
     tag_y = 420
@@ -57,8 +60,10 @@ def create_social_preview():
         bbox = draw.textbbox((tag_x, tag_y), tag, font=tag_font)
         padding = 15
         pill_box = (tag_x, tag_y, tag_x + (bbox[2]-bbox[0]) + padding*2, tag_y + (bbox[3]-bbox[1]) + padding*2)
-        draw.rounded_rectangle(pill_box, radius=10, fill="#1e293b", outline=ACCENT_COLOR, width=2)
-        draw.text((tag_x + padding, tag_y + padding), tag, font=tag_font, fill=ACCENT_COLOR)
+        # Use ACCENT_BG for fill to make text pop
+        draw.rounded_rectangle(pill_box, radius=10, fill=ACCENT_BG, outline=ACCENT_COLOR, width=2)
+        # Use TEXT_COLOR (White) for text instead of accent color for better readability
+        draw.text((tag_x + padding, tag_y + padding), tag, font=tag_font, fill=TEXT_COLOR)
         tag_x += (bbox[2]-bbox[0]) + padding*2 + 30
 
     # Draw Mascot (if exists)
@@ -82,8 +87,8 @@ def create_social_preview():
             # Adjust Text Positions
             draw.text((200, 40), "Arthor Agent", font=title_font, fill=TEXT_COLOR)
             # Reset subtitle positions
-            draw.text((200, 160), "Automated Security Assessment", font=subtitle_font, fill="#94a3b8")
-            draw.text((200, 210), "with LLMs & RAG", font=subtitle_font, fill="#94a3b8")
+            draw.text((200, 160), "Automated Security Assessment", font=subtitle_font, fill=SUBTITLE_COLOR)
+            draw.text((200, 210), "with LLMs & RAG", font=subtitle_font, fill=SUBTITLE_COLOR)
             
             # Reset tags
             tag_x = 200
@@ -92,8 +97,8 @@ def create_social_preview():
                 bbox = draw.textbbox((tag_x, tag_y), tag, font=tag_font)
                 padding = 10
                 pill_box = (tag_x, tag_y, tag_x + (bbox[2]-bbox[0]) + padding*2, tag_y + (bbox[3]-bbox[1]) + padding*2)
-                draw.rounded_rectangle(pill_box, radius=10, fill="#1e293b", outline=ACCENT_COLOR, width=2)
-                draw.text((tag_x + padding, tag_y + padding), tag, font=tag_font, fill=ACCENT_COLOR)
+                draw.rounded_rectangle(pill_box, radius=10, fill=ACCENT_BG, outline=ACCENT_COLOR, width=2)
+                draw.text((tag_x + padding, tag_y + padding), tag, font=tag_font, fill=TEXT_COLOR)
                 tag_x += (bbox[2]-bbox[0]) + padding*2 + 20
                 
         except Exception as e:
