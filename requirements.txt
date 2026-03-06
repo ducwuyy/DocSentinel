@@ -1,0 +1,33 @@
+# Arthor Agent — Dependencies
+# Python 3.10+
+
+# Web & API
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+
+# Config & validation
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+
+# Agent & LLM
+langchain>=0.1.0
+langchain-openai>=0.0.5
+langchain-community>=0.0.20
+langchain-core>=0.1.0
+
+# Vector store & embedding
+chromadb>=0.4.22
+sentence-transformers>=2.2.0
+
+# Document parsing
+pymupdf>=1.23.0
+python-docx>=1.1.0
+openpyxl>=3.1.0
+python-pptx>=0.6.21
+
+# HTTP & async
+httpx>=0.26.0
+
+# Utils
+python-multipart>=0.0.6
+python-dotenv>=1.0.0

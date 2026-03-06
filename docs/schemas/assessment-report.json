@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://security-ai-agent.example/schemas/assessment-report.json",
+  "title": "AssessmentReport",
+  "type": "object",
+  "required": ["version", "task_id", "status", "summary"],
+  "properties": {
+    "version": { "type": "string", "const": "1.0" },
+    "task_id": { "type": "string", "format": "uuid" },
+    "status": { "type": "string", "enum": ["completed", "partial", "failed"] },
+    "summary": { "type": "string", "description": "评估结论摘要" },
+    "risk_items": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/RiskItem" }
+    },
+    "compliance_gaps": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/ComplianceGap" }
+    },
+    "remediations": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Remediation" }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "scenario_id": { "type": "string" },
+        "project_id": { "type": "string" },
+        "model_used": { "type": "string" },
+        "completed_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "format": { "type": "string", "enum": ["json", "markdown"], "default": "json" }
+  },
+  "$defs": {
+    "RiskItem": {
+      "type": "object",
+      "required": ["id", "title", "severity"],
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "severity": { "type": "string", "enum": ["low", "medium", "high", "critical"] },
+        "description": { "type": "string" },
+        "source_ref": { "type": "string" },
+        "category": { "type": "string" }
+      }
+    },
+    "ComplianceGap": {
+      "type": "object",
+      "required": ["id", "control_or_clause", "gap_description"],
+      "properties": {
+        "id": { "type": "string" },
+        "control_or_clause": { "type": "string" },
+        "gap_description": { "type": "string" },
+        "evidence_suggestion": { "type": "string" },
+        "framework": { "type": "string" }
+      }
+    },
+    "Remediation": {
+      "type": "object",
+      "required": ["id", "action"],
+      "properties": {
+        "id": { "type": "string" },
+        "action": { "type": "string" },
+        "priority": { "type": "string", "enum": ["low", "medium", "high"] },
+        "related_risk_ids": { "type": "array", "items": { "type": "string" } },
+        "related_gap_ids": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

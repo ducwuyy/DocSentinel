@@ -1,0 +1,261 @@
+# Arthor Agent — REST API 规范 | API Specification (OpenAPI 3.x)
+# 本文件为模板，请随实现补充完整并与 FastAPI 导出或手写保持一致。
+# This file is a template; complete and keep in sync with FastAPI or hand-written spec.
+
+openapi: 3.0.3
+info:
+  title: Arthor Agent API
+  description: |
+    Arthor Agent 的 REST API。
+    REST API for Arthor Agent (assessment, knowledge base, health).
+  version: 0.1.0
+  contact:
+    name: PAN CHAO
+    email: u3638376@connect.hku.hk
+
+servers:
+  - url: http://localhost:8000
+    description: 本地开发 Local
+  # - url: https://api.example.com
+  #   description: 生产 Production
+
+tags:
+  - name: auth
+    description: 认证（AAD/Token）| Authentication
+  - name: assessment
+    description: 评估任务 | Assessment tasks
+  - name: knowledge-base
+    description: 知识库 | Knowledge base
+  - name: health
+    description: 健康与配置 | Health and config
+
+paths:
+  # ---------- 认证 ----------
+  /auth/login:
+    get:
+      summary: 发起登录（重定向到 AAD 等 IdP）| Initiate login
+      tags: [auth]
+      parameters: []
+      responses:
+        '302':
+          description: Redirect to IdP
+        '501':
+          description: SSO not configured
+  /auth/callback:
+    get:
+      summary: OAuth2/OIDC 回调 | OAuth2/OIDC callback
+      tags: [auth]
+      parameters:
+        - name: code
+          in: query
+          schema: { type: string }
+        - name: state
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: 登录成功，返回 token 或 set-cookie
+        '401':
+          description: 登录失败
+
+  # ---------- 评估任务 ----------
+  /assessments:
+    post:
+      summary: 提交评估任务 | Submit assessment task
+      tags: [assessment]
+      security:
+        - BearerAuth: []
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [files]
+              properties:
+                files:
+                  type: array
+                  items: { type: string, format: binary }
+                scenario_id:
+                  type: string
+                  description: 评估场景 ID（可选）| Assessment scenario ID (optional)
+                project_id:
+                  type: string
+                  description: 项目 ID（如 ServiceNow，可选）| Project ID e.g. ServiceNow (optional)
+                compliance_framework:
+                  type: string
+                  description: 合规框架标签（可选）| Compliance framework tag (optional)
+      responses:
+        '202':
+          description: 任务已接受，返回任务 ID | Task accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssessmentTaskCreated'
+        '400':
+          description: 请求无效（如无文件）| Invalid request
+        '401':
+          description: 未认证 | Unauthorized
+        '413':
+          description: 文件过大或数量超限 | File too large or too many files
+
+  /assessments/{task_id}:
+    get:
+      summary: 查询评估任务状态与结果 | Get assessment task status and result
+      tags: [assessment]
+      security: [{ BearerAuth: [] }, { ApiKeyAuth: [] }]
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: 任务状态与报告（若已完成）| Task status and report (if done)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssessmentTaskResult'
+        '404':
+          description: 任务不存在或无权访问 | Not found or no access
+
+  # ---------- 知识库 ----------
+  /kb/documents:
+    post:
+      summary: 上传文档至知识库 | Upload document to knowledge base
+      tags: [knowledge-base]
+      security: [{ BearerAuth: [] }, { ApiKeyAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file: { type: string, format: binary }
+                collection_id: { type: string, description: 知识库/集合 ID（可选） }
+                metadata: { type: string, description: JSON 字符串，标签等 }
+      responses:
+        '201':
+          description: 上传成功，返回文档 ID | Uploaded
+          content:
+            application/json:
+              schema: { type: object, properties: { document_id: { type: string } } }
+        '400':
+          description: 格式不支持或参数错误 | Unsupported format or bad params
+        '401':
+          description: 未认证 | Unauthorized
+
+  /kb/query:
+    post:
+      summary: 检索知识库（RAG 查询）| Query knowledge base (RAG)
+      tags: [knowledge-base]
+      security: [{ BearerAuth: [] }, { ApiKeyAuth: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                query: { type: string }
+                collection_id: { type: string }
+                top_k: { type: integer, default: 5 }
+      responses:
+        '200':
+          description: 检索结果片段 | Retrieved chunks
+          content:
+            application/json:
+              schema: { type: object, properties: { chunks: { type: array, items: { type: object } } } }
+        '401':
+          description: 未认证 | Unauthorized
+
+  # ---------- 健康与配置 ----------
+  /health:
+    get:
+      summary: 健康检查 | Health check
+      tags: [health]
+      responses:
+        '200':
+          description: 服务正常 | OK
+          content:
+            application/json:
+              schema: { type: object, properties: { status: { type: string, example: ok } } }
+
+  /config/llm:
+    get:
+      summary: 当前 LLM 配置（仅必要字段，脱敏）| Current LLM config (sanitized)
+      tags: [health]
+      security: [{ BearerAuth: [] }]
+      responses:
+        '200':
+          description: 当前使用的模型名等 | Current model name etc.
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: AAD 或 IdP 颁发的 JWT | JWT from AAD or IdP
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API Key（用于集成/服务间）| For integrations / M2M
+
+  schemas:
+    AssessmentTaskCreated:
+      type: object
+      required: [task_id, status]
+      properties:
+        task_id: { type: string, format: uuid }
+        status: { type: string, enum: [accepted, queued] }
+        message: { type: string }
+
+    AssessmentTaskResult:
+      type: object
+      properties:
+        task_id: { type: string }
+        status: { type: string, enum: [pending, running, completed, failed] }
+        report:
+          $ref: '#/components/schemas/AssessmentReport'
+        error_message: { type: string }
+        created_at: { type: string, format: date-time }
+        completed_at: { type: string, format: date-time }
+
+    AssessmentReport:
+      description: 与 03-assessment-report-and-skill-contract.md 中的报告 Schema 一致
+      type: object
+      properties:
+        summary: { type: string }
+        risk_items: { type: array, items: { $ref: '#/components/schemas/RiskItem' } }
+        compliance_gaps: { type: array, items: { $ref: '#/components/schemas/ComplianceGap' } }
+        remediations: { type: array, items: { $ref: '#/components/schemas/Remediation' } }
+        format: { type: string, enum: [json, markdown] }
+
+    RiskItem:
+      type: object
+      properties:
+        id: { type: string }
+        title: { type: string }
+        severity: { type: string, enum: [low, medium, high, critical] }
+        description: { type: string }
+        source_ref: { type: string }
+
+    ComplianceGap:
+      type: object
+      properties:
+        id: { type: string }
+        control_or_clause: { type: string }
+        gap_description: { type: string }
+        evidence_suggestion: { type: string }
+
+    Remediation:
+      type: object
+      properties:
+        id: { type: string }
+        action: { type: string }
+        priority: { type: string }
+        related_risk_ids: { type: array, items: { type: string } }
