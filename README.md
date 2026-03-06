@@ -13,6 +13,8 @@
   <a href="https://github.com/arthurpanhku/Arthor-Agent/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"/></a>
   <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/python-3.10+-blue.svg" alt="Python 3.10+"/></a>
   <a href="https://github.com/arthurpanhku/Arthor-Agent"><img src="https://img.shields.io/badge/GitHub-arthurpanhku%2FArthor--Agent-24292e?logo=github" alt="GitHub repo"/></a>
+  <a href="docs/06-agent-integration.md"><img src="https://img.shields.io/badge/MCP-Ready-green?logo=anthropic" alt="MCP Ready"/></a>
+  <a href="docs/06-agent-integration.md"><img src="https://img.shields.io/badge/Agent-Integration-blueviolet" alt="Agent Integration"/></a>
 </p>
 
 ---
@@ -22,6 +24,8 @@
 **中文**
 
 **Arthor Agent** 是面向安全团队的 AI 助手。它自动化审阅与安全相关的**文档、表格和报告**（如安全问卷、设计文档、合规证据），结合策略与知识库进行比对，并产出**结构化评估报告**，包含风险项、合规差距与整改建议。
+
+🚀 **Agent Ready**: 支持 **Model Context Protocol (MCP)**，可作为“技能”被 OpenClaw、Claude Desktop 等智能体直接调用。
 
 - **多格式输入**：PDF、Word、Excel、PPT、文本，解析为统一格式供大模型使用。
 - **知识库（RAG）**：上传策略与合规文档，评估时作为参考检索。
@@ -33,6 +37,8 @@
 **English**
 
 **Arthor Agent** is an AI-powered assistant for security teams. It automates the review of security-related **documents, forms, and reports** (e.g. Security Questionnaires, design docs, compliance evidence), compares them against your policy and knowledge base, and produces **structured assessment reports** with risks, compliance gaps, and remediation suggestions.
+
+🚀 **Agent Ready**: Supports **Model Context Protocol (MCP)** to be used as a "skill" by OpenClaw, Claude Desktop, and other autonomous agents.
 
 - **Multi-format input**: PDF, Word, Excel, PPT, text — parsed into a unified format for the LLM.
 - **Knowledge base (RAG)**: Upload policy and compliance documents; the agent uses them as reference when assessing.
