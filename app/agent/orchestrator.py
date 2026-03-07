@@ -19,26 +19,47 @@ from app.models.assessment import (
 from app.models.parser import ParsedDocument
 
 
+from app.agent.skills_service import get_skill_service
+
 async def run_assessment(
     task_id: UUID,
     parsed_documents: list[ParsedDocument],
     scenario_id: str | None = None,
     project_id: str | None = None,
+    skill_id: str | None = None,
 ) -> AssessmentReport:
+    # 1. Load Skill (Persona)
+    skill_service = get_skill_service()
+    # Default to first builtin if not provided or found
+    skill = skill_service.get_skill(skill_id) if skill_id else None
+    if not skill:
+        skill = skill_service.list_skills()[0]
+
     doc_context = _build_document_context(parsed_documents)
-    policy_chunks, history_chunks = _policy_and_history_agent(doc_context["query_seed"])
-    evidence_context = _evidence_agent(parsed_documents)
+    
+    # Pass skill context to agents
+    policy_chunks, history_chunks = _policy_and_history_agent(
+        doc_context["query_seed"], 
+        skill_focus=skill.risk_focus
+    )
+    
+    evidence_context = _evidence_agent(parsed_documents, skill_focus=skill.risk_focus)
+    
     draft_raw = await _drafter_agent(
         doc_context["full_text"],
         policy_chunks,
         history_chunks,
+        skill=skill
     )
+    
     reviewed_raw = await _reviewer_agent(
         draft_raw,
         evidence_context,
         policy_chunks,
         history_chunks,
+        skill=skill
     )
+    
     report = await _parse_llm_output_to_report(
         raw=reviewed_raw,
         task_id=task_id,
@@ -59,33 +80,56 @@ def _build_document_context(parsed_documents: list[ParsedDocument]) -> dict[str,
     return {"full_text": combined_input, "query_seed": combined_input[:2000]}
 
 
-def _policy_and_history_agent(query_seed: str) -> tuple[list, list]:
+def _policy_and_history_agent(
+    query_seed: str, 
+    skill_focus: list[str] | None = None
+) -> tuple[list, list]:
     kb = KnowledgeBaseService()
+    
+    # Enrich query with skill focus
+    search_query = query_seed
+    if skill_focus:
+        focus_terms = " ".join(skill_focus[:3])
+        search_query = f"{focus_terms} {query_seed}"
+
     policy_chunks = []
     history_chunks = []
     try:
-        policy_chunks = kb.query(query_seed, top_k=5)
+        policy_chunks = kb.query(search_query, top_k=5)
     except Exception:
         policy_chunks = []
     try:
-        history_chunks = kb.query_history_responses(query_seed, top_k=3)
+        history_chunks = kb.query_history_responses(search_query, top_k=3)
     except Exception:
         history_chunks = []
     return policy_chunks, history_chunks
 
 
-def _evidence_agent(parsed_documents: list[ParsedDocument]) -> str:
+def _evidence_agent(
+    parsed_documents: list[ParsedDocument], 
+    skill_focus: list[str] | None = None
+) -> str:
     evidence_lines: list[str] = []
+    
+    # Default keywords
+    keywords = ["password", "encrypt", "access", "token", "risk", "vulnerability"]
+    # Add skill focus keywords
+    if skill_focus:
+        for f in skill_focus:
+            keywords.extend(f.lower().split())
+    
+    keywords = list(set(keywords))  # dedupe
+
     for d in parsed_documents:
         content = d.content if isinstance(d.content, str) else str(d.content)
         for i, line in enumerate(content.splitlines()):
             ln = line.strip()
             if not ln:
                 continue
-            if any(k in ln.lower() for k in ["password", "encrypt", "access", "token"]):
+            if any(k in ln.lower() for k in keywords):
                 evidence_lines.append(f"{d.metadata.filename}#L{i + 1}: {ln[:240]}")
     return (
-        "\n".join(evidence_lines[:20])
+        "\n".join(evidence_lines[:30])  # Increased from 20
         or "No explicit security evidence lines extracted."
     )
 
@@ -94,22 +138,33 @@ async def _drafter_agent(
     full_text: str,
     policy_chunks: list,
     history_chunks: list,
+    skill: object = None,
 ) -> str:
     policy_context = _format_chunks_with_ids(policy_chunks, prefix="POL")
     history_context = _format_chunks_with_ids(history_chunks, prefix="HIS")
-    system_prompt = (
+    
+    base_prompt = (
         "You are DrafterAgent in a multi-agent security workflow. "
         "Create an assessment draft in JSON only with keys: summary, risk_items, "
-        "compliance_gaps, remediations. For each risk item include source_ref and "
-        "optional category."
+        "compliance_gaps, remediations."
     )
+    
+    # Inject Skill Persona
+    if skill:
+        base_prompt = (
+            f"{skill.system_prompt}\n"
+            f"You are acting as {skill.name}. {skill.description}\n"
+            f"Focus areas: {', '.join(skill.risk_focus)}.\n"
+            "Output strictly JSON with keys: summary, risk_items, compliance_gaps, remediations."
+        )
+
     user_prompt = (
         f"## Documents\n{full_text[:12000]}\n\n"
         f"## Policy Chunks\n{policy_context[:5000]}\n\n"
         f"## Historical Answers\n{history_context[:3000]}\n\n"
         "Generate draft JSON."
     )
-    return await invoke_llm(system_prompt, user_prompt)
+    return await invoke_llm(base_prompt, user_prompt)
 
 
 async def _reviewer_agent(
@@ -117,16 +172,26 @@ async def _reviewer_agent(
     evidence_context: str,
     policy_chunks: list,
     history_chunks: list,
+    skill: object = None,
 ) -> str:
     policy_context = _format_chunks_with_ids(policy_chunks, prefix="POL")
     history_context = _format_chunks_with_ids(history_chunks, prefix="HIS")
-    system_prompt = (
+    
+    base_prompt = (
         "You are ReviewerAgent. Validate and improve the draft for consistency and "
         "hallucination resistance. Output JSON only with keys: summary, confidence, "
-        "risk_items, compliance_gaps, remediations, sources. "
-        "confidence is 0.0-1.0. sources is array of "
-        "{id,file,page,paragraph_id,excerpt,evidence_link,score}."
+        "risk_items, compliance_gaps, remediations, sources."
     )
+    
+    if skill:
+        base_prompt = (
+            f"You are a Reviewer for the {skill.name} persona. "
+            f"Validate the draft against {', '.join(skill.compliance_frameworks)}. "
+            "Ensure findings match the persona's focus. "
+            "Output JSON only with keys: summary, confidence, risk_items, "
+            "compliance_gaps, remediations, sources."
+        )
+
     user_prompt = (
         f"## Draft\n{draft_raw[:8000]}\n\n"
         f"## Evidence Lines\n{evidence_context[:2000]}\n\n"
@@ -134,7 +199,7 @@ async def _reviewer_agent(
         f"## Historical Answers\n{history_context[:2000]}\n\n"
         "Keep only well-supported findings. Add explicit sources and confidence."
     )
-    return await invoke_llm(system_prompt, user_prompt)
+    return await invoke_llm(base_prompt, user_prompt)
 
 
 def _format_chunks_with_ids(chunks: list, prefix: str) -> str:

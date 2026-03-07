@@ -14,6 +14,28 @@ if "api_url" not in st.session_state:
 
 client = ApiClient(st.session_state.api_url)
 
+# --- Sidebar: Task Configuration ---
+st.sidebar.header("Task Config")
+scenario = st.sidebar.selectbox("Scenario", ["Security Questionnaire", "Design Review", "Compliance Audit"])
+project_id = st.sidebar.text_input("Project ID", "PROJ-001")
+
+# Skill Selection
+try:
+    skills = client.fetch_api(f"{st.session_state.api_url}/api/v1/skills/")
+    skill_options = {s["name"]: s["id"] for s in skills}
+    selected_skill_name = st.sidebar.selectbox("Assessor Persona", list(skill_options.keys()))
+    selected_skill_id = skill_options[selected_skill_name]
+    
+    # Show skill details
+    current_skill = next((s for s in skills if s["id"] == selected_skill_id), None)
+    if current_skill:
+        st.sidebar.caption(f"**Focus**: {', '.join(current_skill.get('risk_focus', []))}")
+except Exception:
+    st.sidebar.warning("Could not load skills.")
+    selected_skill_id = None
+
+st.sidebar.markdown("---")
+
 # Setup State
 if "task_id" not in st.session_state:
     st.session_state.task_id = None
@@ -30,7 +52,6 @@ with st.container(border=True):
             type=["pdf", "docx", "xlsx", "pptx", "txt", "md"],
         )
     with col2:
-        scenario_id = st.text_input("Scenario ID", value="default")
         collaborative_mode = st.checkbox("Enable collaborative review", value=True)
         reviewer = st.text_input("Reviewer", value="security.lead")
         st.markdown("<br>", unsafe_allow_html=True)
@@ -46,7 +67,9 @@ if start_btn:
             st.write("Uploading files...")
             res = client.upload_assessment(
                 uploaded_files,
-                scenario_id=scenario_id,
+                scenario_id=scenario,
+                project_id=project_id,
+                skill_id=selected_skill_id,
                 collaborative_mode=collaborative_mode,
             )
 

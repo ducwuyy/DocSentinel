@@ -10,7 +10,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from app.api import assessments, health, kb
+from app.api import assessments, kb, skills
 from app.core.config import settings
 from app.kb.service import KnowledgeBaseService
 
@@ -36,16 +36,11 @@ async def _kb_auto_sync_loop():
 
 app = FastAPI(
     title="Arthor Agent API",
-    description=(
-        "Arthor Agent — automated security assessment for documents and "
-        "questionnaires. PRD-aligned."
-    ),
-    version="0.1.0",
-    lifespan=lifespan,
-    docs_url="/api-docs",
-    redoc_url="/redoc",
+    version="0.3.0",
+    description="Automated Security Assessment with LLMs & RAG",
 )
 
+# CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -54,9 +49,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(health.router)
-app.include_router(assessments.router, prefix=settings.API_PREFIX)
-app.include_router(kb.router, prefix=settings.API_PREFIX)
+app.include_router(assessments.router, prefix=f"{settings.API_PREFIX}/assessments", tags=["assessments"])
+app.include_router(kb.router, prefix=f"{settings.API_PREFIX}/kb", tags=["knowledge-base"])
+app.include_router(skills.router, prefix=f"{settings.API_PREFIX}/skills", tags=["skills"])
 
 # Mount docs directory for demo purposes
 # The directory is mounted at /docs, so files are accessible at /docs/filename

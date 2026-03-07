@@ -16,24 +16,36 @@ class ApiClient:
 
     def upload_assessment(
         self,
-        files,
-        scenario_id: str = "default",
-        collaborative_mode: bool = True,
-    ) -> dict | None:
-        """Uploads files for assessment and returns task_id"""
-        url = f"{self.base_url}{self.api_prefix}/assessments"
-        files_payload = [("files", (f.name, f, f.type)) for f in files]
-        data = {
-            "scenario_id": scenario_id,
-            "collaborative_mode": str(collaborative_mode).lower(),
-        }
+        files: list,
+        scenario_id: str | None = None,
+        project_id: str | None = None,
+        skill_id: str | None = None,
+        collaborative_mode: bool = False,
+    ):
+        """Upload documents for assessment."""
+        files_payload = []
+        for f in files:
+            files_payload.append(("files", (f.name, f.getvalue(), f.type)))
+
+        data = {"collaborative_mode": str(collaborative_mode).lower()}
+        if scenario_id:
+            data["scenario_id"] = scenario_id
+        if project_id:
+            data["project_id"] = project_id
+        if skill_id:
+            data["skill_id"] = skill_id
 
         try:
-            res = requests.post(url, files=files_payload, data=data)
+            res = requests.post(
+                f"{self.base_url}{self.api_prefix}/assessments/",
+                files=files_payload,
+                data=data,
+                timeout=60.0,
+            )
             res.raise_for_status()
             return res.json()
         except Exception as e:
-            st.error(f"API Error: {str(e)}")
+            st.error(f"Upload failed: {e}")
             return None
 
     def get_assessment_result(self, task_id: str) -> dict | None:
