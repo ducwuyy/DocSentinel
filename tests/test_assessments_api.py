@@ -48,7 +48,7 @@ def test_submit_assessment_with_txt_file(client):
     """
 
     async def mock_run_assessment(
-        task_id, parsed_documents, scenario_id=None, project_id=None
+        task_id, parsed_documents, scenario_id=None, project_id=None, skill_id=None
     ):
         return _make_report(task_id)
 
@@ -80,9 +80,35 @@ def test_submit_assessment_with_txt_file(client):
     assert "sources" in r2_data.get("report", {})
 
 
+def test_submit_assessment_with_skill(client):
+    """POST /api/v1/assessments with skill_id passes it to orchestrator."""
+    
+    # Mock to capture arguments
+    captured_args = {}
+    async def mock_run_assessment(
+        task_id, parsed_documents, scenario_id=None, project_id=None, skill_id=None
+    ):
+        captured_args["skill_id"] = skill_id
+        return _make_report(task_id)
+
+    with patch(
+        "app.api.assessments.run_assessment",
+        new_callable=AsyncMock,
+        side_effect=mock_run_assessment,
+    ):
+        files = [("files", ("sample.txt", b"Content", "text/plain"))]
+        client.post(
+            "/api/v1/assessments", 
+            data={"skill_id": "iso-27001-auditor"}, 
+            files=files
+        )
+        
+    assert captured_args["skill_id"] == "iso-27001-auditor"
+
+
 def test_review_comment_and_activity_flow(client):
     async def mock_run_assessment(
-        task_id, parsed_documents, scenario_id=None, project_id=None
+        task_id, parsed_documents, scenario_id=None, project_id=None, skill_id=None
     ):
         return _make_report(task_id)
 

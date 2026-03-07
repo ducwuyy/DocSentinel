@@ -10,7 +10,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from app.api import assessments, kb, skills
+from app.api import assessments, health, kb, skills
 from app.core.config import settings
 from app.kb.service import KnowledgeBaseService
 
@@ -49,8 +49,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(assessments.router, prefix=f"{settings.API_PREFIX}/assessments", tags=["assessments"])
-app.include_router(kb.router, prefix=f"{settings.API_PREFIX}/kb", tags=["knowledge-base"])
+app.include_router(health.router)
+app.include_router(assessments.router, prefix=settings.API_PREFIX)
+app.include_router(kb.router, prefix=settings.API_PREFIX)
 app.include_router(skills.router, prefix=f"{settings.API_PREFIX}/skills", tags=["skills"])
 
 # Mount docs directory for demo purposes

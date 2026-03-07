@@ -40,6 +40,7 @@ async def submit_assessment(
     ),
     scenario_id: str | None = Form(None),
     project_id: str | None = Form(None),
+    skill_id: str | None = Form(None),
     collaborative_mode: bool = Form(True),
 ):
     """Submit an assessment task; returns task_id for polling."""
@@ -87,7 +88,11 @@ async def submit_assessment(
 
     try:
         report = await run_assessment(
-            task_id, parsed_list, scenario_id=scenario_id, project_id=project_id
+            task_id,
+            parsed_list,
+            scenario_id=scenario_id,
+            project_id=project_id,
+            skill_id=skill_id,
         )
         target_status = "review_pending" if collaborative_mode else "completed"
         _tasks[str(task_id)]["status"] = target_status
