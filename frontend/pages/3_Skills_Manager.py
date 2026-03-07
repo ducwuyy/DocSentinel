@@ -19,7 +19,76 @@ except Exception as e:
     skills = []
 
 # Tabs
-tab_list, tab_create = st.tabs(["📜 Available Skills", "➕ Create Custom Skill"])
+tab_list, tab_create, tab_templates = st.tabs(["📜 Available Skills", "➕ Create Custom Skill", "📥 Load Templates"])
+
+with tab_templates:
+    st.header("Import Standard Templates")
+    st.markdown("Select a pre-configured assessment persona to add to your skills library.")
+    
+    # Define available templates (In a real app, this could scan the directory)
+    TEMPLATES = {
+        "soc2_type2": {
+            "name": "SOC 2 Type II Auditor",
+            "path": "examples/templates/soc2_type2/skill.json"
+        },
+        "supplier_review": {
+            "name": "Supplier Risk Analyst",
+            "path": "examples/templates/supplier_review/skill.json"
+        },
+        "architecture_review": {
+            "name": "Architecture Security Reviewer",
+            "path": "examples/templates/architecture_review/skill.json"
+        }
+    }
+    
+    selected_template_key = st.selectbox("Choose a Template", list(TEMPLATES.keys()), format_func=lambda x: TEMPLATES[x]["name"])
+    
+    if selected_template_key:
+        import json
+        import os
+        
+        template_info = TEMPLATES[selected_template_key]
+        
+        # Check if path exists, if not try relative to CWD
+        template_path = template_info["path"]
+        if not os.path.exists(template_path):
+             # Try absolute path based on CWD if needed, or warn
+             pass
+
+        try:
+            with open(template_path, "r") as f:
+                template_data = json.load(f)
+                
+            st.json(template_data)
+            
+            if st.button(f"Import '{template_info['name']}'"):
+                # Payload for API
+                payload = {
+                    "id": template_data["id"],
+                    "name": template_data["name"],
+                    "description": template_data["description"],
+                    "system_prompt": template_data["system_prompt"],
+                    "risk_focus": template_data.get("risk_focus", []),
+                    "compliance_frameworks": template_data.get("compliance_frameworks", []),
+                }
+                
+                try:
+                    import requests
+                    res = requests.post(f"{st.session_state.api_url}/api/v1/skills/", json=payload)
+                    if res.status_code == 200:
+                        st.success(f"Successfully imported {template_data['name']}!")
+                        import time
+                        time.sleep(1)
+                        st.rerun()
+                    elif res.status_code == 400 and "already exists" in res.text:
+                        st.warning("Skill already exists. Delete it first if you want to re-import.")
+                    else:
+                        st.error(f"Error importing: {res.text}")
+                except Exception as e:
+                    st.error(str(e))
+                    
+        except FileNotFoundError:
+            st.error(f"Template file not found at {template_path}")
 
 with tab_list:
     if not skills:

@@ -262,9 +262,13 @@ Arthor-Agent/
 
 🤖 **AI-Assisted Contribution**: We encourage using AI tools to contribute! Check out [CONTRIBUTING_WITH_AI.md](CONTRIBUTING_WITH_AI.md) for best practices.
 
+📜 **Submit a Skill Template**: Have a great security persona? Submit a [Skill Template](https://github.com/arthurpanhku/Arthor-Agent/issues/new?template=new_skill_template.md) or add it to `examples/templates/`. We welcome real-world (sanitized) security questionnaires to improve our templates!
+
 **中文**：欢迎提交 Issue 与 Pull Request。请先阅读 [CONTRIBUTING.md](CONTRIBUTING.md) 了解开发环境、测试与提交规范。参与即视为同意 [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) 行为准则。
 
 🤖 **AI 辅助贡献**：我们也鼓励使用 AI 工具参与贡献！请查看 [CONTRIBUTING_WITH_AI.md](CONTRIBUTING_WITH_AI.md) 获取最佳实践指南。
+
+📜 **贡献技能模板**：有好的安全评估角色？欢迎提交 [技能模板 Issue](https://github.com/arthurpanhku/Arthor-Agent/issues/new?template=new_skill_template.md) 或直接添加到 `examples/templates/`。特别欢迎脱敏后的真实安全问卷样例，帮助我们完善模板！
 
 ---
 
