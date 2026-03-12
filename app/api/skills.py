@@ -32,7 +32,7 @@ async def create_skill(skill_in: SkillCreate):
     try:
         return service.create_skill(skill_in)
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from e
 
 @router.put("/{skill_id}", response_model=Skill)
 async def update_skill(skill_id: str, skill_in: SkillUpdate):
@@ -41,7 +41,7 @@ async def update_skill(skill_id: str, skill_in: SkillUpdate):
     try:
         return service.update_skill(skill_id, skill_in)
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from e
 
 @router.delete("/{skill_id}")
 async def delete_skill(skill_id: str):
@@ -51,4 +51,4 @@ async def delete_skill(skill_id: str):
         service.delete_skill(skill_id)
         return {"message": "Skill deleted"}
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from e

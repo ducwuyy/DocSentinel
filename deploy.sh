@@ -59,5 +59,4 @@ fi
 
 echo -e "${GREEN}=== Deployment Complete! ===${NC}"
 echo -e "Access your services at:"
-echo -e "  - Dashboard: http://localhost:8501"
 echo -e "  - API Docs:  http://localhost:8000/docs"

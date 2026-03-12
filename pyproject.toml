@@ -30,11 +30,8 @@ dependencies = [
     "openpyxl",
     "PyPDF2",
     "python-pptx",
-    "pandas",
     "reportlab",
     "aiofiles",
-    "streamlit",
-    "plotly",
     "moviepy",
     "mcp"
 ]

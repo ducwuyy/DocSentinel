@@ -47,7 +47,7 @@ Ideal for enterprises that need to scale security assessments across many projec
 
 ## Why DocSentinel?
 
-| Pain Point                                                                                                                    | DocSentinel Solution                                                                        |
+| Pain Point                                                                                                                    | DocSentinel Solution                                                                         |
 | :---------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------- |
 | **Fragmented criteria**<br>Policies, standards, and precedents are scattered.                                                 | Single **knowledge base** ensures consistent findings and traceability.                      |
 | **Heavy questionnaire workflow**<br>Business fills form → Security reviews → Business adds evidence → Security reviews again. | **Automated first-pass** and gap analysis reduces manual back-and-forth rounds.              |
@@ -107,46 +107,35 @@ flowchart TB
 
 ---
 
-## Features
+## ✨ Core Capabilities
 
-| Area               | Capabilities                                                      |
-| :----------------- | :---------------------------------------------------------------- |
-| **Parsing**        | Word, PDF, Excel, PPT, Text → Markdown/JSON.                      |
-| **Knowledge Base** | Multi-format upload, chunking, vectorization (Chroma), RAG query. |
-| **Assessment**     | Submit files → structured report (risks, gaps, remediations).     |
-| **LLM**            | Configurable provider: **Ollama** (local), OpenAI, etc.           |
-| **API**            | REST API & **MCP Server** for Agent integration.                  |
-| **Security**       | Built-in RBAC, Audit Logs, and Prompt Injection guards.           |
-| **Integration**    | Supports **MCP** for OpenClaw, Claude Desktop, etc.               |
+### 🛡️ Automated Security Assessment
+Submit security questionnaires, design documents, or audit reports. DocSentinel analyzes them using configured LLMs and identifies:
+- **Security Risks**: Classified by severity (Critical, High, Medium, Low).
+- **Compliance Gaps**: Missing controls against frameworks like ISO 27001, PCI DSS.
+- **Remediation Steps**: Actionable advice to fix identified issues.
 
-Roadmap (e.g. AAD/SSO, ServiceNow integration) in [SPEC.md](./SPEC.md).
+### 🧠 RAG-Powered Knowledge Base
+Upload your organization's internal security policies, standards, and past audits. The agent indexes these documents to provide **context-aware assessments**, citing specific policy clauses in its findings.
 
----
-
-## 👀 Features at a Glance
-
-### 1. Assessment Workbench
-Upload documents, select a persona (e.g. SOC2 Auditor), and get instant risk analysis.
-
-![Assessment Workbench](docs/images/ui-dashboard.png)
-
-### 2. Structured Report
-Clear view of Risks, Compliance Gaps, and Remediation Steps.
-
-![Structured Report](docs/images/ui-report.png)
-
-### 3. Knowledge Base Management
-Upload policy documents to RAG. The agent cites these as evidence.
-
-![Knowledge Base](docs/images/ui-kb.png)
+### 🔌 API-First & MCP Ready
+Designed as a headless service. Integrate it into your CI/CD pipelines via REST API, or use it as a **super-tool** within AI agents (like Claude Desktop, OpenClaw) using the Model Context Protocol (MCP).
 
 ---
 
 ## 🤖 Agent Integration (MCP)
 
-Connect DocSentinel to **Claude Desktop** or **Cursor** to use it as a tool.
+Connect DocSentinel to **Claude Desktop**, **Cursor**, or **OpenClaw** to use it as a powerful security skill.
 
-### Claude Desktop
+### 💡 What can it do?
+Once connected, you can ask your AI agent:
+> "Read the attached `system-design.pdf` and assess it for compliance risks using DocSentinel."
+>
+> "Check `api-spec.yaml` against our internal `access-control-policy.pdf` in the Knowledge Base."
+
+### 🛠️ Configuration Guide
+
+#### 1. Claude Desktop
 Add to your `claude_desktop_config.json`:
 ```json
 {
@@ -154,13 +143,16 @@ Add to your `claude_desktop_config.json`:
     "docsentinel": {
       "command": "/path/to/DocSentinel/.venv/bin/python",
       "args": ["/path/to/DocSentinel/app/mcp_server.py"],
-      "env": { "OPENAI_API_KEY": "sk-..." }
+      "env": {
+        "OPENAI_API_KEY": "sk-...",
+        "CHROMA_PERSIST_DIR": "/absolute/path/to/data/chroma"
+      }
     }
   }
 }
 ```
 
-### Cursor
+#### 2. Cursor
 1. Go to **Settings > Features > MCP**.
 2. Click **+ Add New MCP Server**.
    - **Name**: `docsentinel`
@@ -176,7 +168,7 @@ Add to your `claude_desktop_config.json`:
 
 ### Option A: One-Click Deployment (Recommended)
 
-Run the deployment script to start the full stack (API + Dashboard + Vector DB + optional Ollama).
+Run the deployment script to start the full stack (API + Vector DB + optional Ollama).
 
 ```bash
 git clone https://github.com/arthurpanhku/DocSentinel.git
@@ -185,7 +177,6 @@ chmod +x deploy.sh
 ./deploy.sh
 ```
 
--   **Dashboard**: [http://localhost:8501](http://localhost:8501)
 -   **API Docs**: [http://localhost:8000/docs](http://localhost:8000/docs)
 
 ### Option B: Docker Manual

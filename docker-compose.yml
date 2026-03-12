@@ -27,16 +27,5 @@ services:
     volumes:
       - docsentinel-data:/data
 
-  frontend:
-    build: 
-      context: .
-      dockerfile: Dockerfile.frontend
-    ports:
-      - "8501:8501"
-    environment:
-      - API_BASE_URL=http://app:8000
-    depends_on:
-      - app
-
 volumes:
   docsentinel-data:
