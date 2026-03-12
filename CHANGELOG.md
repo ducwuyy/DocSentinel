@@ -6,6 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [3.0.0] — 2026-03-12
+
+### Major Change
+This release transitions DocSentinel into a **pure Headless / MCP Service**. We have removed the built-in frontend to focus entirely on API and Agent integration capabilities.
+
+### Removed
+- **Frontend**: Removed the Streamlit dashboard, Assessment Workbench, and Knowledge Base Manager UI.
+- **Dependencies**: Removed `streamlit`, `plotly`, `pandas`, and related UI assets.
+- **Scripts**: Removed `generate_social_preview.py` and UI-related deployment configurations.
+
+### Changed
+- **Documentation**: Updated README to highlight MCP capabilities (Claude Desktop, Cursor, OpenClaw).
+- **Deployment**: Simplified `docker-compose.yml` and `deploy.sh` to deploy only the backend service.
+
+---
+
 ## [2.0.0] — 2026-03-08
 
 ### Major Release
@@ -97,6 +113,7 @@ This release marks a significant milestone with **Skill Management**, **Template
 - **CI/CD**: Updated GitHub Actions workflow to include linting steps.
 - **Project Structure**: Migrated `pytest.ini` to `pyproject.toml`.
 
+[3.0.0]: https://github.com/arthurpanhku/DocSentinel/releases/tag/v3.0.0
+[2.0.0]: https://github.com/arthurpanhku/DocSentinel/releases/tag/v2.0.0
 [0.3.0]: https://github.com/arthurpanhku/DocSentinel/releases/tag/v0.3.0
 [0.2.0]: https://github.com/arthurpanhku/DocSentinel/releases/tag/v0.2.0
-[0.1.0]: https://github.com/arthurpanhku/DocSentinel/releases/tag/v0.1.0

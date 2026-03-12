@@ -36,7 +36,7 @@ async def _kb_auto_sync_loop():
 
 app = FastAPI(
     title="DocSentinel API",
-    version="0.3.0",
+    version="3.0.0",
     description="Automated Security Assessment with LLMs & RAG",
 )
 
